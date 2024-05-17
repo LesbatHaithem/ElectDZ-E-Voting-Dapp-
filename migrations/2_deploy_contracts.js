@@ -1,8 +1,8 @@
 var Mayor = artifacts.require("Mayor");
 
 module.exports = function(deployer) {
-  const candidates = ["0x9814c22d2a81b0C24580a6aB1d8b04FE6b71a6e6", "0x26f73097E9066499EE608c2Aab4fDEB01e1fdab4", "0xbd6250efB0857F035Da25a6025b768c9eF2fF047"];
-  const escrow = "0xC53d14eb163Dd81384552E3f329302cFE3e7e35b";
+  const candidates = ["0x76b56A6Ef22EFE0D9605C0C173f05E61ee1A24fe", "0xAC5979cd08726FD5155808D3160D9ee595723C4E", "0xb315386af25eAb928AE65F15d51bEf568185E6a1"];
+  const escrow = "0xF5D131d65A57632b18F7B538f2E40e67AAA2b585";
   const quorum = 3;
   const firstNames = ["Guessoum", "Lesbat", "Daoud"];
   const lastNames = ["Abdennour", "Haithem", "Yasser"];

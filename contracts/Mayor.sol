@@ -79,6 +79,10 @@ contract Mayor {
     // Refund phase variables
     mapping(address => Candidate) candidates;
 
+
+    mapping(address => bool) public envelopeOpened;
+
+
     address[] voters;
 
     /// @notice The constructor only initializes internal variables
@@ -121,17 +125,24 @@ contract Mayor {
     /// @dev Need to recompute the hash to validate the envelope previously casted
     function open_envelope(uint _sigil, address _sign) canOpen public {
         require(envelopes[msg.sender] != 0x0, "The sender has not casted any votes");
+        require(!envelopeOpened[msg.sender], "Envelope has already been opened");
 
         bytes32 _casted_envelope = envelopes[msg.sender];
         bytes32 _sent_envelope = compute_envelope(_sigil, _sign);
 
         require(_casted_envelope == _sent_envelope, "Sent envelope does not correspond to the one casted");
 
+        // Mark the envelope as opened to prevent re-opening
+        envelopeOpened[msg.sender] = true;
+
+        // Increment the vote count for the candidate
         candidates[_sign].votes += 1;
 
+        // Update the number of opened envelopes
         voting_condition.envelopes_opened++;
         voters.push(msg.sender);
 
+        // Emit the event to log the action
         emit EnvelopeOpen(msg.sender, _sign);
     }
 
