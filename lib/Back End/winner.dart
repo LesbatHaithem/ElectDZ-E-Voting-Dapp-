@@ -18,7 +18,7 @@ class _WinnerState extends State<Winner> {
   Blockchain blockchain = Blockchain();
 
   late ConfettiController _controllerCenter;
-  List<WinnerModel> candidates = [new WinnerModel("Loading",BigInt.zero,BigInt.zero)];
+  List<WinnerModel> candidates = [new WinnerModel("Loading", BigInt.zero,"Loading","Loading")];
   bool? valid;
 
   @override
@@ -31,70 +31,111 @@ class _WinnerState extends State<Winner> {
 
 
   Future<void> _updateCandidates() async {
+    print("Fetching candidates...");
     Alert(
-        context: context,
-        title:"Getting results...",
-        buttons: [],
+      context: context,
+      title: "Getting results...",
+      buttons: [],
       style: AlertStyle(
-        animationType: AnimationType.fromTop,
+        animationType: AnimationType.grow,
         isCloseButton: false,
         isOverlayTapDismiss: false,
-        descStyle: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Times new Roman'),
-        animationDuration: Duration(milliseconds: 400),
+        overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
         alertBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
+          borderRadius: BorderRadius.circular(30.0),
           side: BorderSide(
-            color: Colors.white, // Added a red accent border to match your theme
-            width: 2,
+            color: Theme.of(context).colorScheme.secondary,
+            width: 1,
           ),
         ),
+        backgroundColor: Theme.of(context).colorScheme.background,
         titleStyle: TextStyle(
-          color: Colors.black, // Making sure the title matches the theme
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
         ),
+        descStyle: TextStyle(
+          fontSize: 16,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        animationDuration: Duration(milliseconds: 500),
+        alertElevation: 0,
+        buttonAreaPadding: EdgeInsets.all(20),
+        alertPadding: EdgeInsets.all(20),
       ),
     ).show();
-    Future.delayed(Duration(milliseconds:500), () => {
+
+    Future.delayed(const Duration(milliseconds: 500), () {
       blockchain.queryView("get_results", []).then((value) {
-        Navigator.of(context).pop();  // Ensure navigator is popped in both success and error cases
-        print(value);
+        Navigator.of(context).pop();
+        print("Results fetched successfully: $value");
         setState(() {
           candidates = [];
           for (int i = 0; i < value[0].length; i++) {
-            candidates.add(new WinnerModel(value[0][i].toString(), value[1][i], value[2][i]));
+            String address = value[0][i].toString();
+            BigInt votes = BigInt.parse(value[1][i].toString());
+            String firstNames = value[2][i].toString();
+            String lastNames = value[3][i].toString();
+
+            candidates.add(WinnerModel(address, votes, firstNames, lastNames));
           }
-          candidates.sort((a, b) {
-            if (a.souls == b.souls) {
-              return b.votes!.compareTo(a.votes!);
-            } else {
-              return b.souls!.compareTo(a.souls!);
-            }
-          });
+          // Sort candidates by votes in descending order
+          candidates.sort((a, b) => b.votes!.compareTo(a.votes!));
           valid = true;
+          print("Candidates updated and sorted. 'valid' set to true.");
         });
         _controllerCenter.play();
-        Future.delayed(Duration(seconds: 5), () {
+        Future.delayed(const Duration(seconds: 5), () {
           _controllerCenter.stop();
         });
       }).catchError((error) {
-        Navigator.of(context).pop();  // This ensures that any UI blocking elements are removed even on error
+        Navigator.of(context).pop();
         print('Error fetching results: $error');
         String errorMessage = (error is RPCError) ? blockchain.translateError(error) : error.toString();
         if (error.toString().contains("invalid")) {
-          errorMessage = "Elections are invalid (there was a tie).";
+          errorMessage = "Elections are invalid (there was a tie). InvalidElections!";
           setState(() {
             valid = false;
+            print("Election results invalid due to tie. 'valid' set to false.");
           });
         }
         Alert(
-            context: context,
-            type: AlertType.error,
-            title: "Error",
-            desc: errorMessage
+          context: context,
+          type: AlertType.error,
+          title: "Error",
+          desc: errorMessage,
+          style: AlertStyle(
+            animationType: AnimationType.grow,
+            isCloseButton: false,
+            isOverlayTapDismiss: false,
+            overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
+            alertBorder: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+              side: BorderSide(
+                color: Theme.of(context).colorScheme.secondary,
+                width: 1,
+              ),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.background,
+            titleStyle: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+            descStyle: TextStyle(
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            animationDuration: Duration(milliseconds: 500),
+            alertElevation: 0,
+            buttonAreaPadding: EdgeInsets.all(20),
+            alertPadding: EdgeInsets.all(20),
+          ),
+
         ).show();
-      },)
+      });
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +219,7 @@ class _WinnerState extends State<Winner> {
                             height: 50,
                             width: 50,
                           ),
-                          title: Text("${candidates[0].addr}"),
+                          title: Text("${candidates[0].firstName} ${candidates[0].lastName}"),
                         ),
                       ],
                     ),
@@ -225,8 +266,7 @@ class _WinnerState extends State<Winner> {
                               ),
                             ),
                             title: Text(
-                                "${candidates[index].addr}",
-                                style: TextStyle(color: Colors.black)
+                                "${candidates[index].firstName} ${candidates[index].lastName}",                                style: TextStyle(color: Colors.black)
                             ),
                             subtitle: Text(' 🗳 Votes: ' + candidates[index].votes.toString()),
                           ),

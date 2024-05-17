@@ -5,11 +5,10 @@ module.exports = {
       host: "127.0.0.1",
       port: 7545,
       network_id: "5777",
-      from: "0xEBa5fb998f6634941F922fA1f5c7D79692d3BbE0", // Specify the deployer account address
+      from: "0x6770dF986271C9C3f4cE833cEA443b3a9CA37EeF", // Specify the deployer account address
 
      },
   },
-
   compilers: {
     solc: {
         version: "0.8.1",

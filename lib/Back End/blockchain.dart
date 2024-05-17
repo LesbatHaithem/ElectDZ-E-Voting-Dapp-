@@ -103,27 +103,11 @@ class Blockchain {
     return address;
   }
 
-  Uint8List encodeVote(BigInt secret, EthereumAddress addr, BigInt wei) {
-    List<dynamic> parameters = [secret,addr, wei];
-    AbiType type = TupleType(
-      [UintType(),AddressType(), UintType()],
-    );
-    print(type);
+  Uint8List encodeVote(BigInt secret, EthereumAddress addr) {
+    List<dynamic> parameters = [secret, addr];
+    AbiType type = const TupleType([UintType(), AddressType()]);
     final sink = LengthTrackingByteSink();
-
     type.encode(parameters, sink);
     return keccak256(sink.asBytes());
-
-  }
-
-  String soulsUnit(BigInt souls){
-    double wei = souls.toDouble();
-    if (wei >= 10000000000000000){
-      return (wei/1000000000000000000).toString() + " ETH";
-    } else if (wei >= 10000000){
-      return (wei/1000000000).toString() + " GWEI";
-    } else {
-      return wei.toString() + " WEI";
-    }
   }
 }

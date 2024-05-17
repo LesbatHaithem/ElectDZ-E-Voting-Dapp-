@@ -35,10 +35,10 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(Duration(seconds: 2), () async {
       if (contract == null) {
         setState(() {
-          Navigator.pushAndRemoveUntil(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => QRScreen()),
-                (Route<dynamic> route) => false,
+                //(Route<dynamic> route) => false,
 
           );
         });

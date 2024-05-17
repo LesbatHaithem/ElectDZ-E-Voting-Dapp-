@@ -7,6 +7,8 @@ import 'package:mrtdeg/Back End/blockchain.dart';
 import 'package:mrtdeg/Back End/vote.dart';
 import 'package:mrtdeg/Back End/splash.dart';
 import 'package:mrtdeg/Back End/winner.dart';
+import'package:mrtdeg/Back End/Confirm.dart';
+import 'Gradientbutton.dart';
 
 class FlowScreen extends StatefulWidget {
   @override
@@ -80,124 +82,6 @@ class _FlowScreenState extends State<FlowScreen> {
     });
   }
 
-  Future<void> _deposit() async {
-    TextEditingController text_deposit = TextEditingController();
-    Alert(
-        context: context,
-        type: AlertType.info,
-        title: "Deposit some funds",
-        style: AlertStyle(
-          animationType: AnimationType.fromTop,
-          isCloseButton: false,
-          isOverlayTapDismiss: false,
-          descStyle: TextStyle(fontWeight: FontWeight.bold),
-          animationDuration: Duration(milliseconds: 400),
-          alertBorder: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-            side: BorderSide(
-              color: Colors.blue, // Added a red accent border to match your theme
-              width: 2,
-            ),
-          ),
-          titleStyle: TextStyle(
-            color: Colors.black, // Making sure the title matches the theme
-          ),
-        ),
-        content: Column(
-          children: [
-            TextField(
-              controller: text_deposit,
-              decoration: InputDecoration(
-                labelText: 'Amount',
-              ),
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
-              ],
-            ),
-            SizedBox(
-              height:10,
-            ),
-            Wrap(
-                children:[
-                  InputChip(
-                      label: Text('5 ETH'),
-                      onSelected: (bool) => {text_deposit.text = "5000000000000000000"}
-                  ),
-                  SizedBox(width:8),
-                  InputChip(
-                      label: Text('1 ETH'),
-                      onSelected: (bool) => {text_deposit.text = "1000000000000000000"}
-                  ),
-                  SizedBox(width:8),
-                  InputChip(
-                      label: Text('0.5 ETH'),
-                      onSelected: (bool) => {text_deposit.text = "500000000000000000"}
-                  ),
-                  SizedBox(width:8),
-                  InputChip(
-                      label: Text('0.01 ETH'),
-                      onSelected: (bool) => {text_deposit.text = "10000000000000000"}
-                  ),
-                ]
-            ),
-          ],
-        ),
-        buttons: [
-          DialogButton(
-              onPressed: () => {
-                Navigator.pop(context),
-                Alert(
-                  context: context,
-                  title: "Sending funds...",
-                  buttons: [],
-                  style: AlertStyle(
-                    animationType: AnimationType.fromTop,
-                    isCloseButton: false,
-                    isOverlayTapDismiss: false,
-                    descStyle: TextStyle(fontWeight: FontWeight.bold),
-                    animationDuration: Duration(milliseconds: 400),
-                    alertBorder: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(40.0),
-                      side: BorderSide(
-                        color: Colors.white, // Added a red accent border to match your theme
-                        width: 2,
-                      ),
-                    ),
-                    titleStyle: TextStyle(
-                      color: Colors.black, // Making sure the title matches the theme
-                    ),
-                  ),
-                ).show(),
-                Future.delayed(Duration(milliseconds: 500), () => {
-                  blockchain.query("deposit", [], wei:BigInt.parse(text_deposit.text)).then((value) => {
-                    Navigator.pop(context),
-                    Alert(
-                        context: context,
-                        type: AlertType.success,
-                        title: "Funds deposited!",
-                        style: animation
-                    ).show()
-                  }).catchError((error){
-                    Navigator.of(context).pop();
-                    Alert(
-                        context: context,
-                        type: AlertType.error,
-                        title:"Error",
-                        desc: blockchain.translateError(error),
-                        style: animation
-                    ).show();
-                  })
-                })
-              },
-              child: Text(
-                  "Deposit",
-                  style: TextStyle(color: Colors.white, fontSize: 20)
-              )
-          )
-        ]
-    ).show();
-  }
 
   Future<void> _updateQuorum() async {
     Alert(
@@ -286,16 +170,15 @@ class _FlowScreenState extends State<FlowScreen> {
                 style: TextStyle(fontSize: 14.0, color: Colors.white),
               ),
 
-              SizedBox(height: 24.0),
-              ElevatedButton.icon(
-                icon: Icon(Icons.account_balance_wallet),
-                label: Text("Deposit"),
-                onPressed: step == 3 ? _deposit : null,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent, foregroundColor: Colors.black),
-              ),
+
+              // ElevatedButton.icon(
+              //   icon: Icon(Icons.account_balance_wallet),
+              //   label: Text("Deposit"),
+              //   // onPressed:  ,
+              //   style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent, foregroundColor: Colors.black),
+              // ),
             ],
           ),
-          icon: Icon(Icons.add_circle_outline),
         ),
         EnhanceStep(
           isActive: step >= 4,
@@ -333,18 +216,18 @@ class _FlowScreenState extends State<FlowScreen> {
                 style: TextStyle(fontSize: 14.0, color: Colors.white),
               ),
               SizedBox(height: 24.0),
-              ElevatedButton.icon(
-                icon: Icon(Icons.how_to_vote),
-                label: Text("Vote"),
+              GradientButton(
+                text: "Vote",
                 onPressed: step == 0 ? () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => Vote(isConfirming: false)),
                 ) : null,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent, foregroundColor: Colors.black),
+                icon: Icon(Icons.how_to_vote, color: Colors.black),  // Ensure the icon color matches the text color for consistency
+                width: 200,  // Optional: Adjust the width as necessary
+                height: 50,  // Standard touch target height
               ),
             ],
           ),
-          icon: Icon(Icons.how_to_vote),
         ),
         EnhanceStep(
           isActive: step >= 1,
@@ -357,18 +240,18 @@ class _FlowScreenState extends State<FlowScreen> {
                 style: TextStyle(fontSize: 14.0, color: Colors.white),
               ),
               SizedBox(height: 24.0),
-              ElevatedButton.icon(
-                icon: Icon(Icons.check_circle_outline),
-                label: Text("Confirm"),
+              GradientButton(
+                text: "Confirm",
+                icon: Icon(Icons.check_circle_outline, color: Colors.black),  // Add the icon with the appropriate color
                 onPressed: step == 1 ? () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Vote(isConfirming: true)),
+                  MaterialPageRoute(builder: (context) => Confrim(isConfirming: true)),  // Corrected typo "Confrim" to "Confirm"
                 ) : null,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent, foregroundColor: Colors.black),
-              ),
+                width: 200,  // Optional width setting
+                height: 50,  // Standard button height
+              )
             ],
           ),
-          icon: Icon(Icons.check_circle_outline),
         ),
         EnhanceStep(
           isActive: step >= 2,
@@ -381,15 +264,15 @@ class _FlowScreenState extends State<FlowScreen> {
                 style: TextStyle(fontSize: 14.0, color: Colors.white),
               ),
               SizedBox(height: 24.0),
-              ElevatedButton.icon(
-                icon: Icon(Icons.gavel),
-                label: Text("Ask to declare"),
-                onPressed: step == 2 ? _mayorOrSayonara : null,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent, foregroundColor: Colors.black),
-              ),
+              GradientButton(
+                text: "Ask to declare",
+                icon: Icon(Icons.gavel, color: Colors.black),  // Specify the icon and its color
+                onPressed: step == 2 ? _mayorOrSayonara : null,  // Conditionally enable the button
+                width: 200,  // Optionally specify the width, or use double.infinity for full width
+                height: 50,  // Standard touch target height
+              )
             ],
           ),
-          icon: Icon(Icons.gavel),
         ),
       ];
     }
@@ -463,44 +346,60 @@ class _FlowScreenState extends State<FlowScreen> {
           ),
           preferredSize:  Size(MediaQuery.of(context).size.width, 45),
         ),
-        body: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [Colors.blue.shade800, Colors.blue.shade200],
-
-              ),
-            ),
-            alignment: Alignment.topCenter,
-            child: Column(
-                children:[
-                  Card(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        ListTile(
-                          leading: CircularProgressIndicator(
-                            value: quorum_circle,
-                          ),
-                          trailing: ElevatedButton(
-                              onPressed: _updateQuorum,
-                              style: ElevatedButton.styleFrom(backgroundColor:  Colors.greenAccent),
-
-                              child: Text("Update",
-                                style: TextStyle(fontSize: 13.0, color: Colors.black),
-                              )
-                          ),
-                          title: Text('$quorum_text'),
-                        ),
+        body: Column(
+            children:[
+              Card(
+                elevation: 5,  // Gives a shadow effect under the card
+                shape: RoundedRectangleBorder(  // Ensures that the Card remains rounded
+                  borderRadius: BorderRadius.circular(10.0),  // Adjust radius as needed
+                ),
+                child: Container(
+                  width: 400,  // Specify the width of the Card
+                  height: 65,  // Specify the height of the Card
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),  // Match this radius with the Card's radius
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,  // Gradient starts at the top left corner
+                      end: Alignment.bottomRight,  // Gradient ends at the bottom right corner
+                      colors: [
+                        Colors.white,  // Starting color of the gradient
+                        Colors.blue,  // Ending color of the gradient
                       ],
                     ),
                   ),
-                  Expanded(
-                      child: buildBody(context)
-                  )
-                ]
-            )
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ListTile(
+                        leading: CircularProgressIndicator(
+                          color: Colors.green,
+                          value: quorum_circle,
+                        ),
+                        trailing: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              side: BorderSide(
+                                color: Colors.blue,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                          onPressed: _updateQuorum,
+                          child: Text("Update"),
+                        ),
+                        title: Text('$quorum_text'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                  child: buildBody(context)
+              )
+            ]
         )
     );
   }

@@ -59,6 +59,7 @@ dependencies:
   enhance_stepper:
   flutter_beautiful_popup:
   animated_text_kit: ^4.2.1
+  liquid_pull_to_refresh :
 
 
 

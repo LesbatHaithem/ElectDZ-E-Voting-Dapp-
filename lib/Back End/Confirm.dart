@@ -6,17 +6,17 @@ import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:mrtdeg/Back End/blockchain.dart';
 import 'package:web3dart/json_rpc.dart';
-import'Gradientbutton.dart';
-class Vote extends StatefulWidget {
+import 'Gradientbutton.dart';
+class Confrim extends StatefulWidget {
   final bool isConfirming;
 
-  Vote({Key? key, required this.isConfirming}) : super(key: key);
+  Confrim({Key? key, required this.isConfirming}) : super(key: key);
 
   @override
-  _VoteState createState() => _VoteState();
+  _ConfrimState createState() => _ConfrimState();
 }
 
-class _VoteState extends State<Vote> {
+class _ConfrimState extends State<Confrim> {
   final _formKey = GlobalKey<FormState>();
   final text_secret = TextEditingController();
 
@@ -302,7 +302,7 @@ class _VoteState extends State<Vote> {
           context: context,
           type: AlertType.success,
           title:"OK",
-          desc: "Your vote has been casted!",
+          desc: "Your vote has been Confirmed !",
           style: AlertStyle(
             animationType: AnimationType.grow,
             isCloseButton: false,
@@ -343,122 +343,6 @@ class _VoteState extends State<Vote> {
     });
   }
 
-  Future<void> _sendVote() async {
-    if (!checkSelection())
-      return;
-
-    List<dynamic> args = [blockchain.encodeVote(BigInt.parse(text_secret.text), candidates[_selected],)];
-
-    Alert(
-      context: context,
-      title:"Sending your vote...",
-      buttons: [],
-      style: AlertStyle(
-        animationType: AnimationType.grow,
-        isCloseButton: false,
-        isOverlayTapDismiss: false,
-        overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
-        alertBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          side: BorderSide(
-            color:Theme.of(context).colorScheme.secondary,
-            width: 1,
-          ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.background,
-        titleStyle: TextStyle(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-        descStyle: TextStyle(
-          fontSize: 16,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        animationDuration: const Duration(milliseconds: 500),
-        alertElevation: 0,
-        buttonAreaPadding: const EdgeInsets.all(20),
-        alertPadding: const EdgeInsets.all(20),
-      ),
-    ).show();
-    Future.delayed(const Duration(milliseconds:500), () => {
-      blockchain.query("cast_envelope", args).then((value) => {
-        Navigator.of(context).pop(),
-        Alert(
-            style: AlertStyle(
-              animationType: AnimationType.grow,
-              isCloseButton: false,
-              isOverlayTapDismiss: false,
-              overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
-              alertBorder: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                side: BorderSide(
-                  color:Theme.of(context).colorScheme.secondary,
-                  width: 1,
-                ),
-              ),
-              backgroundColor: Theme.of(context).colorScheme.background,
-              titleStyle: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-              descStyle: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              animationDuration: const Duration(milliseconds: 500),
-              alertElevation: 0,
-              buttonAreaPadding: const EdgeInsets.all(20),
-              alertPadding: const EdgeInsets.all(20),
-            ),
-
-            context: context,
-            type: AlertType.success,
-            title:"OK",
-            desc: "Your vote has been casted!"
-        ).show()
-      }).catchError((error){
-        Navigator.of(context).pop();
-        Alert(
-            style: AlertStyle(
-              animationType: AnimationType.grow,
-              isCloseButton: false,
-              isOverlayTapDismiss: false,
-              overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
-              alertBorder: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                side: BorderSide(
-                  color:Theme.of(context).colorScheme.secondary,
-                  width: 1,
-                ),
-              ),
-              backgroundColor: Theme.of(context).colorScheme.background,
-              titleStyle: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-              descStyle: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              animationDuration: const Duration(milliseconds: 500),
-              alertElevation: 0,
-              buttonAreaPadding: const EdgeInsets.all(20),
-              alertPadding: const EdgeInsets.all(20),
-            ),
-
-            context: context,
-            type: AlertType.error,
-            title:"Error",
-            desc: (error is NoSuchMethodError)
-                ? error.toString()
-                : error.toString()//blockchain.translateError(error)
-        ).show();
-      })
-    });
-  }
   Future<void> _handleRefresh() async {
     return await Future.delayed(const Duration(seconds: 2));
   }
@@ -474,7 +358,7 @@ class _VoteState extends State<Vote> {
             borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
             child: AppBar(
               backgroundColor: Theme.of(context).colorScheme.background,
-              title: Text('Vote', style: TextStyle(fontWeight: FontWeight.bold,color:Colors.black)),
+              title: Text('Confirm', style: TextStyle(fontWeight: FontWeight.bold,color:Colors.black)),
               elevation: 0,
               centerTitle: true,
               actions: [
@@ -499,7 +383,7 @@ class _VoteState extends State<Vote> {
                   child: Column(
                     children: <Widget>[
                       const Text(
-                          'Vote The New Mayor',
+                          'Confirm your previous vote',
                           style: TextStyle(fontSize: 20 , fontWeight: FontWeight.bold)
                       ),
                       const SizedBox(height: 20),
@@ -511,54 +395,54 @@ class _VoteState extends State<Vote> {
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
                             return GestureDetector(
-                              onTap: (){
-                                setState(() {
-                                  _selected = index;
-                                });
-                              },
-                              child: Card(
-                                color: (_selected == index)
-                                    ? Colors.blue.withOpacity(0.9)  // This will make the card blue when selected
-                                    : Theme.of(context).colorScheme.background.withOpacity(1),
-                                child: Padding(
-                                  padding: EdgeInsets.all(8.0), // Add padding to the card
-                                  child: Center( // Center the content horizontally and vertically
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          width: 60,
-                                          height: 60,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(10),
-                                            image: DecorationImage(
-                                              image: AssetImage("assets/candidate.png"),
-                                              fit: BoxFit.cover, // Use cover to maintain aspect ratio
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: 20), // Add some space between image and text
-                                        Column(
-
-                                          children: [
-
-                                            Text(
-                                              "${firstNames[index]} ${lastNames[index]}",
-                                              style: TextStyle(
-                                                color: (_selected == index)
-                                                    ? Colors.white
-                                                    : Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
+                                onTap: (){
+                                  setState(() {
+                                    _selected = index;
+                                  });
+                                },
+                                child: Card(
+                                  color: (_selected == index)
+                                      ? Colors.blue.withOpacity(0.9)  // This will make the card blue when selected
+                                      : Theme.of(context).colorScheme.background.withOpacity(1),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0), // Add padding to the card
+                                    child: Center( // Center the content horizontally and vertically
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            width: 60,
+                                            height: 60,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(10),
+                                              image: DecorationImage(
+                                                image: AssetImage("assets/candidate.png"),
+                                                fit: BoxFit.cover, // Use cover to maintain aspect ratio
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                      ],
+                                          ),
+                                          SizedBox(width: 20), // Add some space between image and text
+                                          Column(
+
+                                            children: [
+
+                                              Text(
+                                                "${firstNames[index]} ${lastNames[index]}",
+                                                style: TextStyle(
+                                                  color: (_selected == index)
+                                                      ? Colors.white
+                                                      : Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 18,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              )
+                                )
                             );
                           },
                         ),
@@ -598,21 +482,19 @@ class _VoteState extends State<Vote> {
                               child: Container(
                                 width: 200,  // Set the width of the button here, can be parameterized
                                 child: GradientButton(
-                                  text: "Cast Vote",  // Set the button text to "Cast Vote"
-                                  onPressed: () {  // Assuming you have a similar logic to disable the button
-                                    _sendVote();  // Function to execute when the button is pressed
+                                  text: "Confirm Vote",
+                                  onPressed: _isConfirmButtonDisabled ? null : () {
+                                    _openVote();
                                   },
-                                  width: 200,  // Adjust the width to match your UI design
+                                  width: 200,  // You can adjust this based on your UI design
                                   height: 50,  // Standard touch target height
                                 ),
                               ),
                             ),
                           ),
-
                         ],
                       ),
                       const SizedBox(height: 20),
-
                       Center(
                         child: Container(
                           child: Card(
@@ -663,12 +545,8 @@ class _VoteState extends State<Vote> {
                               ),
                             ),
                           ),
-
                         ),
                       ),
-
-
-
                     ],
                   ),
                 ),
