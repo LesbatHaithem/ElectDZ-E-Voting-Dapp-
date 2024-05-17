@@ -3,6 +3,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mrtdeg/Back End/splash.dart';
 import 'package:mrtdeg/Back End/utils.dart';
+import 'Gradientbutton.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -77,14 +78,13 @@ class _LoginScreenState extends State<LoginScreen> {
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
       color: Colors.blue,
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: _login,
-        child: Text("Login",
-            textAlign: TextAlign.center,
-            style: style),
-      ),
+      child: GradientButton(
+        text: "Login",
+        onPressed: _login,  // Function to execute when the button is pressed
+        width: MediaQuery.of(context).size.width,  // Set the width to fill the screen width
+        height: 50,  // Adapt the height if needed, depending on your GradientButton's default or style settings
+      )
+
     );
 
     return Scaffold(

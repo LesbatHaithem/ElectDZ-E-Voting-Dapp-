@@ -276,7 +276,6 @@ class _FlowScreenState extends State<FlowScreen> {
         ),
       ];
     }
-
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(

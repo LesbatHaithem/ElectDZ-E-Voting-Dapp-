@@ -7,6 +7,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mrtdeg/Back End/splash.dart';
 import 'package:mrtdeg/Back End/utils.dart';
+import 'Gradientbutton.dart';
 
 
 
@@ -209,19 +210,14 @@ class _QRScreenState extends State<QRScreen> {
                           Lottie.asset('assets/QR_Code.json', width: 80),
                         ],
                       ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: StadiumBorder(),
-                          backgroundColor: Colors.blue,
-                        ),
-                        onPressed: _manualInput,
-                        child: Text("Enter Manually",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                          ),
-                        ),
-                      ),
+                      GradientButton(
+                        text: "Enter Manually",
+                        onPressed: _manualInput,  // The function to execute when the button is pressed
+                        width: 200,  // Adjust the width based on your UI design needs, or use MediaQuery for full width
+                        height: 50,  // Standard touch target height
+                        // Assuming your GradientButton's default gradient and other styles are set within the button class
+                      )
+                      ,
                     ],
                   ),
                 ),

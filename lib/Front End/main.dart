@@ -10,6 +10,7 @@ import 'package:mrtdeg/Front End//data_save.dart';
 import 'package:mrtdeg/Front End//MrtdDataStorage.dart';
 import 'package:mrtdeg/Front End//voter_profile.dart';
 import 'package:mrtdeg/Back End/splash.dart';
+import 'package:mrtdeg/Back End/Gradientbutton.dart';
 
 
 void main() {
@@ -157,29 +158,26 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
               description: 'Tap here to start',
               child: Container(
                 width: 250,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: StadiumBorder(),
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                  ),
+                child: GradientButton(
+                  text: "Get Started",
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => SplashScreen(),
-                      ),
+                      MaterialPageRoute(builder: (context) => SplashScreen()),
                     );
                   },
-                  child: Text(
-                    'Get Started',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
+                  width: 200,  // You can adjust this width to fit your UI design
+                  height: 50,  // Standard touch target height
+                  textStyle: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
                   ),
-                ),
+                  // If your GradientButton supports custom padding, add here. Otherwise, you'll need to adjust inside the class
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),  // Add padding directly if supported
+                  borderRadius: 30.0,  // Approximation of a StadiumBorder
+                )
+
               ),
             ),
             Spacer(),

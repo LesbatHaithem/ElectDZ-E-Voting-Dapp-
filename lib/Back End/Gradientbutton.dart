@@ -6,6 +6,11 @@ class GradientButton extends StatelessWidget {
   final double width;
   final double height;
   final Widget? icon;  // Optional icon
+  final TextStyle textStyle;  // Text style if not managed internally
+  final EdgeInsets padding;  // Adding padding as a parameter
+  final double borderRadius;
+
+
 
   const GradientButton({
     Key? key,
@@ -14,6 +19,10 @@ class GradientButton extends StatelessWidget {
     this.width = double.infinity,
     this.height = 50.0,
     this.icon,  // New parameter for the icon
+    this.textStyle = const TextStyle(color: Colors.white, fontSize: 17),  // Default text style
+    this.padding = const EdgeInsets.symmetric(vertical: 16, horizontal: 32),  // Default padding
+    this.borderRadius = 30.0,
+
   }) : super(key: key);
 
   @override
@@ -25,7 +34,7 @@ class GradientButton extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [Colors.green, Colors.white],  // Gradient colors from green to white
+          colors: [Colors.cyanAccent, Colors.white],  // Gradient colors from green to white
         ),
         borderRadius: BorderRadius.circular(30.0),
         boxShadow: [

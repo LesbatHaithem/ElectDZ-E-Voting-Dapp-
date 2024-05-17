@@ -7,6 +7,8 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:mrtdeg/Back End/blockchain.dart';
 import 'package:web3dart/json_rpc.dart';
 import'Gradientbutton.dart';
+
+
 class Vote extends StatefulWidget {
   final bool isConfirming;
 
@@ -246,98 +248,6 @@ class _VoteState extends State<Vote> {
             buttonAreaPadding: const EdgeInsets.all(20),
             alertPadding: const EdgeInsets.all(20),
           ),
-        ).show();
-      })
-    });
-  }
-
-
-
-  Future<void> _openVote() async {
-    if (!checkSelection())
-      return;
-
-    setState(() {
-      _isConfirmButtonDisabled = true; // Disable the button
-    });
-
-
-    List<dynamic> args = [BigInt.parse(text_secret.text), candidates[_selected]];
-    Alert(
-      context: context,
-      title:"Confirming your vote...",
-      buttons: [],
-      style: AlertStyle(
-        animationType: AnimationType.grow,
-        isCloseButton: false,
-        isOverlayTapDismiss: false,
-        overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
-        alertBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          side: BorderSide(
-            color:Theme.of(context).colorScheme.secondary,
-            width: 1,
-          ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.background,
-        titleStyle: TextStyle(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-        descStyle: TextStyle(
-          fontSize: 16,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        animationDuration: const Duration(milliseconds: 500),
-        alertElevation: 0,
-        buttonAreaPadding: const EdgeInsets.all(20),
-        alertPadding: const EdgeInsets.all(20),
-      ),
-    ).show();
-    Future.delayed(const Duration(milliseconds:500), () => {
-      blockchain.query("open_envelope", args).then((value) => {
-        Navigator.of(context).pop(),
-        Alert(
-          context: context,
-          type: AlertType.success,
-          title:"OK",
-          desc: "Your vote has been casted!",
-          style: AlertStyle(
-            animationType: AnimationType.grow,
-            isCloseButton: false,
-            isOverlayTapDismiss: false,
-            overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
-            alertBorder: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30.0),
-              side: BorderSide(
-                color:Theme.of(context).colorScheme.secondary,
-                width: 1,
-              ),
-            ),
-            backgroundColor: Theme.of(context).colorScheme.background,
-            titleStyle: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
-            descStyle: TextStyle(
-              fontSize: 16,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            animationDuration: const Duration(milliseconds: 500),
-            alertElevation: 0,
-            buttonAreaPadding: const EdgeInsets.all(20),
-            alertPadding: const EdgeInsets.all(20),
-          ),
-        ).show()
-      }).catchError((error){
-        Navigator.of(context).pop();
-        Alert(
-          context: context,
-          type: AlertType.error,
-          title:"Error",
-          desc: blockchain.translateError(error),
         ).show();
       })
     });

@@ -99,7 +99,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [Colors.white, Colors.lightBlueAccent],
+                        colors: [Colors.white, Colors.cyanAccent],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
