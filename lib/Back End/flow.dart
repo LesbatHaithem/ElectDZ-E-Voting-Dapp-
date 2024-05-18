@@ -83,10 +83,77 @@ class _FlowScreenState extends State<FlowScreen> {
   }
 
 
+  // Future<void> _updateQuorum() async {
+  //   Alert(
+  //     context: context,
+  //     title:"Getting election status...",
+  //     buttons: [],
+  //     style: AlertStyle(
+  //       animationType: AnimationType.fromTop,
+  //       isCloseButton: false,
+  //       isOverlayTapDismiss: false,
+  //       descStyle: TextStyle(fontWeight: FontWeight.bold),
+  //       animationDuration: Duration(milliseconds: 400),
+  //       alertBorder: RoundedRectangleBorder(
+  //         borderRadius: BorderRadius.circular(40.0),
+  //         side: BorderSide(
+  //           color: Colors.white, // Added a red accent border to match your theme
+  //           width: 2,
+  //         ),
+  //       ),
+  //       titleStyle: TextStyle(
+  //         color: Colors.black, // Making sure the title matches the theme
+  //       ),
+  //     ),
+  //   ).show();
+  //   Future.delayed(Duration(milliseconds:500), () async => {
+  //     blockchain.queryView("get_status", [await blockchain.myAddr()]).then((value) => {
+  //       Navigator.of(context).pop(),
+  //       if (value[3] == false){
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(builder: (context) => Winner()),
+  //         )
+  //       },
+  //       setState(() {
+  //         quorum_text = (value[0] != value[1])
+  //             ? (value[0]-value[1]).toString() + " votes to quorum (" + value[1].toString() + "/" + value[0].toString() + ")"
+  //             : "Quorum reached! (Total voters: "+value[0].toString()+")";
+  //         quorum_circle = (value[1]/value[0]);
+  //         print(value);
+  //         if (value[4]){ //addr is a candidate
+  //           step = 3;
+  //           if (!value[3]) { //elections closed
+  //             step = 4;
+  //           }
+  //         } else if (!value[3]){ //elections open
+  //           step = 2;
+  //         } else if (value[1] == value[0]) { //quorum reached
+  //           if (value[2]) { //envelope not open
+  //             step = 1;
+  //           } else { //envelope opened
+  //             step = 2;
+  //           }
+  //         } else { //start
+  //           step = 0;
+  //         }
+  //       })
+  //     }).catchError((error){
+  //       Navigator.of(context).pop();
+  //       Alert(
+  //           context: context,
+  //           type: AlertType.error,
+  //           title:"Error",
+  //           desc: blockchain.translateError(error),
+  //           style: animation
+  //       ).show();
+  //     })
+  //   });
+  // }
   Future<void> _updateQuorum() async {
     Alert(
       context: context,
-      title:"Getting election status...",
+      title: "Getting election status...",
       buttons: [],
       style: AlertStyle(
         animationType: AnimationType.fromTop,
@@ -96,54 +163,42 @@ class _FlowScreenState extends State<FlowScreen> {
         animationDuration: Duration(milliseconds: 400),
         alertBorder: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(40.0),
-          side: BorderSide(
-            color: Colors.white, // Added a red accent border to match your theme
-            width: 2,
-          ),
+          side: BorderSide(color: Colors.white, width: 2),
         ),
-        titleStyle: TextStyle(
-          color: Colors.black, // Making sure the title matches the theme
-        ),
+        titleStyle: TextStyle(color: Colors.black),
       ),
     ).show();
-    Future.delayed(Duration(milliseconds:500), () async => {
+    Future.delayed(Duration(milliseconds: 500), () async => {
       blockchain.queryView("get_status", [await blockchain.myAddr()]).then((value) => {
         Navigator.of(context).pop(),
-        if (value[3] == false){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Winner()),
-          )
-        },
+            if (value[3] == false){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Winner()),
+            )
+          },
         setState(() {
           quorum_text = (value[0] != value[1])
-              ? (value[0]-value[1]).toString() + " votes to quorum (" + value[1].toString() + "/" + value[0].toString() + ")"
-              : "Quorum reached! (Total voters: "+value[0].toString()+")";
-          quorum_circle = (value[1]/value[0]);
+              ? "${value[0] - value[1]} votes to quorum (${value[1]}/${value[0]})"
+              : "Quorum reached! (Total voters: ${value[0]})";
+          quorum_circle = value[1] / value[0];
           print(value);
-          if (value[4]){ //addr is a candidate
-            step = 3;
-            if (!value[3]) { //elections closed
-              step = 4;
-            }
-          } else if (!value[3]){ //elections open
-            step = 2;
-          } else if (value[1] == value[0]) { //quorum reached
-            if (value[2]) { //envelope not open
+          if (value[1] == value[0]) {
+            if (value[2]) { // envelope not open
               step = 1;
-            } else { //envelope opened
+            } else { // envelope opened
               step = 2;
             }
-          } else { //start
+          } else { // start or quorum not reached
             step = 0;
           }
         })
-      }).catchError((error){
+      }).catchError((error) {
         Navigator.of(context).pop();
         Alert(
             context: context,
             type: AlertType.error,
-            title:"Error",
+            title: "Error",
             desc: blockchain.translateError(error),
             style: animation
         ).show();
@@ -300,7 +355,6 @@ class _FlowScreenState extends State<FlowScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
 
@@ -316,7 +370,6 @@ class _FlowScreenState extends State<FlowScreen> {
 
                 ),
               ),
-
               backgroundColor: Theme.of(context).colorScheme.background,
               elevation: 0.0,
               centerTitle: true,

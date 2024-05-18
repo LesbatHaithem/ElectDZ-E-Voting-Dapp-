@@ -416,7 +416,7 @@ class _ConfrimState extends State<Confrim> {
                                             decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(10),
                                               image: DecorationImage(
-                                                image: AssetImage("assets/candidate.png"),
+                                                image: AssetImage("assets/candidat.png"),
                                                 fit: BoxFit.cover, // Use cover to maintain aspect ratio
                                               ),
                                             ),

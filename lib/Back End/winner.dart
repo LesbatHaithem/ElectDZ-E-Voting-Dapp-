@@ -8,6 +8,7 @@ import 'package:mrtdeg/Back End/splash.dart';
 import 'package:mrtdeg/Back End/utils.dart';
 import 'package:mrtdeg/Back End/winnerModel.dart';
 import 'package:web3dart/json_rpc.dart';
+import 'package:mrtdeg/Back End/Gradientbutton.dart';
 
 class Winner extends StatefulWidget {
   @override
@@ -151,7 +152,7 @@ class _WinnerState extends State<Winner> {
           margin: const EdgeInsets.only(top: 30.0),
           child: Column(
             children: <Widget>[
-              Text("Loading...",
+              Text("Loading Page ",
                 style: TextStyle(fontSize: 40),
               )
             ],
@@ -165,32 +166,35 @@ class _WinnerState extends State<Winner> {
           child: Column(
             children: <Widget>[
               Text("Invalid Elections",
-                style: TextStyle(fontSize: 40, color: Colors.white),
+                style: TextStyle(fontSize: 40, color: Colors.black),
               ),
               Text("There was a tie, so no new Mayor.!",
+                  style: TextStyle(fontSize: 25, color: Colors.black),
+
                   textAlign: TextAlign.center
               ),
-              SizedBox(height: 170),
-              Image.asset("assets/sayonara.png",
+              SizedBox(height: 70),
+              Image.asset("assets/invalid.png",
                   width: MediaQuery.of(context).size.width * 0.8
               ),
               SizedBox(height: 50),
-              ElevatedButton(
-                  onPressed: () => {
-                    blockchain.logout(),
-                    setState(() {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        SlideRightRoute(
-                            page: SplashScreen()
-                        ),
-
-                            (Route<dynamic> route) => false,
-                      );
-                    })
-                  },
-                  child: Text("Log Out")
-              ),
+              GradientButton(
+                text: "Log Out",
+                onPressed: () {
+                  blockchain.logout();
+                  setState(() {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      SlideRightRoute(page: SplashScreen()),
+                          (Route<dynamic> route) => false,
+                    );
+                  });
+                },
+                icon: Icon(Icons.logout, color: Colors.black),  // Add an icon if it suits your design
+                width: 200,  // Optional: Adjust the width as necessary
+                height: 50,  // Standard touch target height
+              )
+,
             ],
           ),
         ),
@@ -298,40 +302,37 @@ class _WinnerState extends State<Winner> {
         ],
       );
     }
-    //render
     return Scaffold(
-        backgroundColor: (valid == false)
-            ? Colors.red
-            : Colors.white,
-        appBar: PreferredSize(
-          child: Container(
-            child: AppBar(
-              title: Text("ElectDz",style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-
-              ),
-              ),
-              backgroundColor: Colors.transparent,
-              elevation: 0.0,
-              centerTitle: true,
-            ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [
-                  Colors.white,
-                  Colors.white,
-                ],
-              ),
-            ),
+      appBar: PreferredSize(
+        child: Container(
+          child: AppBar(
+            title: Text("ElectDz", style: TextStyle(
+              color: Colors.black,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            )),
+            backgroundColor: Colors.transparent,
+            elevation: 0.0,
+            centerTitle: true,
           ),
-          preferredSize: Size(MediaQuery.of(context).size.width, 45),
         ),
-        body: body
+        preferredSize: Size(MediaQuery.of(context).size.width, 45),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Colors.white, // Start color of the gradient
+              Colors.blue, // End color of the gradient
+            ],
+          ),
+        ),
+        child: body, // Your original body widget
+      ),
     );
+
 
   }
 }

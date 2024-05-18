@@ -7,6 +7,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:mrtdeg/Back End/blockchain.dart';
 import 'package:web3dart/json_rpc.dart';
 import'Gradientbutton.dart';
+import 'winner.dart';
 
 
 class Vote extends StatefulWidget {
@@ -21,6 +22,8 @@ class Vote extends StatefulWidget {
 class _VoteState extends State<Vote> {
   final _formKey = GlobalKey<FormState>();
   final text_secret = TextEditingController();
+  AlertStyle animation = AlertStyle(animationType: AnimationType.grow);
+
 
   String quorum_text = "Loading Quorum...";
   double quorum_circle = 0.0;
@@ -153,105 +156,161 @@ class _VoteState extends State<Vote> {
     }
     return true;
   }
+  // Future<void> _updateQuorum() async {
+  //   Alert(
+  //     context: context,
+  //     title:"Getting election status...",
+  //     buttons: [],
+  //     style: AlertStyle(
+  //       animationType: AnimationType.grow,
+  //       isCloseButton: false,
+  //       isOverlayTapDismiss: false,
+  //       overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
+  //       alertBorder: RoundedRectangleBorder(
+  //         borderRadius: BorderRadius.circular(30.0),
+  //         side: BorderSide(
+  //           color:Theme.of(context).colorScheme.secondary,
+  //           width: 1,
+  //         ),
+  //       ),
+  //       backgroundColor: Theme.of(context).colorScheme.background,
+  //       titleStyle: TextStyle(
+  //         color: Theme.of(context).colorScheme.primary,
+  //         fontWeight: FontWeight.bold,
+  //         fontSize: 20,
+  //       ),
+  //       descStyle: TextStyle(
+  //         fontSize: 16,
+  //         color: Theme.of(context).colorScheme.primary,
+  //       ),
+  //       animationDuration: Duration(milliseconds: 500),
+  //       alertElevation: 0,
+  //       buttonAreaPadding: EdgeInsets.all(20),
+  //       alertPadding: EdgeInsets.all(20),
+  //     ),
+  //   ).show();
+  //   Future.delayed(Duration(milliseconds:500), () async => {
+  //     blockchain.queryView("get_status", [await blockchain.myAddr()]).then((value) => {
+  //       Navigator.of(context).pop(),
+  //       if (value[3] == false){
+  //       },
+  //       setState(() {
+  //         quorum_text = (value[0] != value[1])
+  //             ? (value[0]-value[1]).toString() + " Elections open (" + value[1].toString() + "/" + value[0].toString() + ")"
+  //             : "Elections closed ";
+  //         quorum_circle = (value[1]/value[0]);
+  //         print(value);
+  //         if (value[4]){ //addr is a candidate
+  //           step = 3;
+  //           if (!value[3]) { //elections closed
+  //             step = 4;
+  //           }
+  //         } else if (!value[3]){ //elections open
+  //           step = 2;
+  //         } else if (value[1] == value[0]) { //quorum reached
+  //           if (value[2]) { //envelope not open
+  //             step = 1;
+  //           } else { //envelope opened
+  //             step = 2;
+  //           }
+  //         } else { //start
+  //           step = 0;
+  //         }
+  //       })
+  //     }).catchError((error){
+  //       Navigator.of(context).pop();
+  //       Alert(
+  //         context: context,
+  //         type: AlertType.error,
+  //         title:"Error",
+  //         desc: blockchain.translateError(error),
+  //         style: AlertStyle(
+  //           animationType: AnimationType.grow,
+  //           isCloseButton: false,
+  //           isOverlayTapDismiss: false,
+  //           overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
+  //           alertBorder: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(30.0),
+  //             side: BorderSide(
+  //               color:Theme.of(context).colorScheme.secondary,
+  //               width: 1,
+  //             ),
+  //           ),
+  //           backgroundColor: Theme.of(context).colorScheme.background,
+  //           titleStyle: TextStyle(
+  //             color: Theme.of(context).colorScheme.primary,
+  //             fontWeight: FontWeight.bold,
+  //             fontSize: 20,
+  //           ),
+  //           descStyle: TextStyle(
+  //             fontSize: 16,
+  //             color: Theme.of(context).colorScheme.primary,
+  //           ),
+  //           animationDuration: const Duration(milliseconds: 500),
+  //           alertElevation: 0,
+  //           buttonAreaPadding: const EdgeInsets.all(20),
+  //           alertPadding: const EdgeInsets.all(20),
+  //         ),
+  //       ).show();
+  //     })
+  //   });
+  // }
   Future<void> _updateQuorum() async {
     Alert(
       context: context,
-      title:"Getting election status...",
+      title: "Getting election status...",
       buttons: [],
       style: AlertStyle(
-        animationType: AnimationType.grow,
+        animationType: AnimationType.fromTop,
         isCloseButton: false,
         isOverlayTapDismiss: false,
-        overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
+        descStyle: TextStyle(fontWeight: FontWeight.bold),
+        animationDuration: Duration(milliseconds: 400),
         alertBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          side: BorderSide(
-            color:Theme.of(context).colorScheme.secondary,
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(40.0),
+          side: BorderSide(color: Colors.white, width: 2),
         ),
-        backgroundColor: Theme.of(context).colorScheme.background,
-        titleStyle: TextStyle(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-        descStyle: TextStyle(
-          fontSize: 16,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        animationDuration: Duration(milliseconds: 500),
-        alertElevation: 0,
-        buttonAreaPadding: EdgeInsets.all(20),
-        alertPadding: EdgeInsets.all(20),
+        titleStyle: TextStyle(color: Colors.black),
       ),
     ).show();
-    Future.delayed(Duration(milliseconds:500), () async => {
+    Future.delayed(Duration(milliseconds: 500), () async => {
       blockchain.queryView("get_status", [await blockchain.myAddr()]).then((value) => {
         Navigator.of(context).pop(),
         if (value[3] == false){
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Winner()),
+          )
         },
         setState(() {
           quorum_text = (value[0] != value[1])
-              ? (value[0]-value[1]).toString() + " Elections open (" + value[1].toString() + "/" + value[0].toString() + ")"
-              : "Elections closed ";
-          quorum_circle = (value[1]/value[0]);
+              ? "${value[0] - value[1]} votes to quorum (${value[1]}/${value[0]})"
+              : "Quorum reached! (Total voters: ${value[0]})";
+          quorum_circle = value[1] / value[0];
           print(value);
-          if (value[4]){ //addr is a candidate
-            step = 3;
-            if (!value[3]) { //elections closed
-              step = 4;
-            }
-          } else if (!value[3]){ //elections open
-            step = 2;
-          } else if (value[1] == value[0]) { //quorum reached
-            if (value[2]) { //envelope not open
+          if (value[1] == value[0]) {
+            if (value[2]) { // envelope not open
               step = 1;
-            } else { //envelope opened
+            } else { // envelope opened
               step = 2;
             }
-          } else { //start
+          } else { // start or quorum not reached
             step = 0;
           }
         })
-      }).catchError((error){
+      }).catchError((error) {
         Navigator.of(context).pop();
         Alert(
-          context: context,
-          type: AlertType.error,
-          title:"Error",
-          desc: blockchain.translateError(error),
-          style: AlertStyle(
-            animationType: AnimationType.grow,
-            isCloseButton: false,
-            isOverlayTapDismiss: false,
-            overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
-            alertBorder: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30.0),
-              side: BorderSide(
-                color:Theme.of(context).colorScheme.secondary,
-                width: 1,
-              ),
-            ),
-            backgroundColor: Theme.of(context).colorScheme.background,
-            titleStyle: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
-            descStyle: TextStyle(
-              fontSize: 16,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            animationDuration: const Duration(milliseconds: 500),
-            alertElevation: 0,
-            buttonAreaPadding: const EdgeInsets.all(20),
-            alertPadding: const EdgeInsets.all(20),
-          ),
+            context: context,
+            type: AlertType.error,
+            title: "Error",
+            desc: blockchain.translateError(error),
+            style: animation
         ).show();
       })
     });
   }
+
 
   Future<void> _sendVote() async {
     if (!checkSelection())
@@ -442,7 +501,7 @@ class _VoteState extends State<Vote> {
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(10),
                                             image: DecorationImage(
-                                              image: AssetImage("assets/candidate.png"),
+                                              image: AssetImage("assets/candidat.png"),
                                               fit: BoxFit.cover, // Use cover to maintain aspect ratio
                                             ),
                                           ),
@@ -531,8 +590,8 @@ class _VoteState extends State<Vote> {
                               borderRadius: BorderRadius.circular(10.0),  // Adjust radius as needed
                             ),
                             child: Container(
-                              width: 300,  // Specify the width of the Card
-                              height: 70,  // Specify the height of the Card
+                              width: 405,  // Specify the width of the Card
+                              height: 115,  // Specify the height of the Card
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),  // Match this radius with the Card's radius
                                 gradient: LinearGradient(

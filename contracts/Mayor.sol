@@ -54,7 +54,7 @@ contract Mayor {
     //only if is finished
     modifier canGetResults() {
         require(voting_condition.open == false, "The elections has not been declared yet");
-        require(voting_condition.valid == true, "The elections are invalid. Sayonara!");
+        require(voting_condition.valid == true, "The elections are invalid.!");
         _;
     }
 
