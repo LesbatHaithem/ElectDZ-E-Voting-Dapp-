@@ -34,6 +34,8 @@ class _VoteState extends State<Vote> {
   List<dynamic> candidates = [];
   List<dynamic> firstNames = [];
   List<dynamic> lastNames = [];
+  List<dynamic> imageUrls = [];
+
   int _selected = -1;
 
   bool _isConfirmButtonDisabled = false;  // Added this line
@@ -48,7 +50,7 @@ class _VoteState extends State<Vote> {
 
 
   Future<void> _updateCandidates() async {
-    var alert = Alert(
+    Alert(
       context: context,
       title: "Getting candidates...",
       desc: "Please wait while we fetch the candidate details.",
@@ -57,7 +59,7 @@ class _VoteState extends State<Vote> {
         animationType: AnimationType.grow,
         isCloseButton: false,
         isOverlayTapDismiss: false,
-        overlayColor: Colors.white,
+        overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
         alertBorder: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
           side: BorderSide(
@@ -80,39 +82,39 @@ class _VoteState extends State<Vote> {
         buttonAreaPadding: EdgeInsets.all(20),
         alertPadding: EdgeInsets.all(20),
       ),
-    );
-    alert.show();
+    ).show();
 
-    try {
-      await Future.delayed(const Duration(milliseconds: 500)); // Just for delay
-      print("Attempting to fetch candidates...");
-      var value = await blockchain.queryView("getCandidateNames", []);
-      print("Fetched data: $value"); // Log the raw returned data
-      Navigator.of(context).pop(); // Close the alert after getting response
-      if (value != null && value.length >= 3) {
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      try {
+        final value = await blockchain.queryView("getCandidateNames", []);
+        Navigator.of(context).pop();
         setState(() {
+          print("Raw data from blockchain: $value");
           candidates = value[0];
           firstNames = value[1];
           lastNames = value[2];
-          print("Candidates: $candidates");
-          print("First Names: $firstNames");
-          print("Last Names: $lastNames");
+          imageUrls = value[3];
+          print("Filtered candidates: $candidates");
         });
-      } else {
-        print("Error: Data received is not as expected.");
-        throw Exception('Received data is not in the expected format or is incomplete.');
+      } catch (error) {
+        Navigator.of(context).pop();
+        if (error is RPCError) {
+          Alert(
+            context: context,
+            type: AlertType.error,
+            title: "Error",
+            desc: blockchain.translateError(error),
+          ).show();
+        } else {
+          Alert(
+            context: context,
+            type: AlertType.error,
+            title: "Error",
+            desc: error.toString(),
+          ).show();
+        }
       }
-    } catch (error) {
-      print("Error fetching candidates: $error");
-      Navigator.of(context).pop(); // Ensure to close the alert in case of error
-      var errorMessage = (error is RPCError) ? blockchain.translateError(error) : "An unknown error occurred: $error";
-      Alert(
-          context: context,
-          type: AlertType.error,
-          title: "Error",
-          desc: errorMessage
-      ).show();
-    }
+    });
   }
 
 
@@ -496,27 +498,25 @@ class _VoteState extends State<Vote> {
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
                                         Container(
-                                          width: 60,
-                                          height: 60,
+                                          width: 40,
+                                          height: 50,
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(10),
                                             image: DecorationImage(
-                                              image: AssetImage("assets/candidat.png"),
+                                              image: NetworkImage(imageUrls[index]),
                                               fit: BoxFit.cover, // Use cover to maintain aspect ratio
                                             ),
                                           ),
                                         ),
                                         SizedBox(width: 20), // Add some space between image and text
                                         Column(
-
                                           children: [
-
                                             Text(
                                               "${firstNames[index]} ${lastNames[index]}",
                                               style: TextStyle(
                                                 color: (_selected == index)
                                                     ? Colors.white
-                                                    : Colors.black,
+                                                    : Theme.of(context).colorScheme.primary,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 18,
                                               ),
@@ -527,7 +527,7 @@ class _VoteState extends State<Vote> {
                                     ),
                                   ),
                                 ),
-                              )
+                              ),
                             );
                           },
                         ),

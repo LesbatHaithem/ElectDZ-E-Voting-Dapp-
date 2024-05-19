@@ -5,7 +5,7 @@ module.exports = {
       host: "127.0.0.1",
       port: 7545,
       network_id: "5777",
-      from: "0x23b3D40fE6E40449720a0e6F9868b4D14b055ED5", // Specify the deployer account address
+      from: "0xb28b7474DFA10f54c5F6Ce28Ed5E9665A9fa4484", // Specify the deployer account address
 
      },
   },

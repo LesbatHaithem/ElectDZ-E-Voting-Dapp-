@@ -25,6 +25,11 @@
         "internalType": "string[]",
         "name": "_lastNames",
         "type": "string[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_imageUrls",
+        "type": "string[]"
       }
     ],
     "stateMutability": "nonpayable",
@@ -34,7 +39,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "_voter",
         "type": "address"
@@ -47,13 +52,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "_voter",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "_sign",
         "type": "address"
@@ -66,7 +71,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "_escrow",
         "type": "address"
@@ -79,26 +84,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "_candidate",
         "type": "address"
       }
     ],
     "name": "NewMayor",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_escrow",
-        "type": "address"
-      }
-    ],
-    "name": "Sayonara",
     "type": "event"
   },
   {
@@ -251,6 +243,11 @@
         "internalType": "string[]",
         "name": "lastNames",
         "type": "string[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "imageUrls",
+        "type": "string[]"
       }
     ],
     "stateMutability": "view",
@@ -279,6 +276,11 @@
       {
         "internalType": "string[]",
         "name": "lastNames",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "imageUrls",
         "type": "string[]"
       }
     ],
