@@ -15,7 +15,7 @@ module.exports = function(deployer) {
   ];
 
   const escrow = "0x9e31CDbC17738fb0471093d44DebB8760f554379";
-  const quorum = 2;
+  const quorum = 1;
 
   deployer.deploy(Mayor, escrow, quorum, groupNames, groupPictures, groupAddresses).then(async (instance) => {
     const candidates = [

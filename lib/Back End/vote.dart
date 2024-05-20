@@ -7,6 +7,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'Gradientbutton.dart';
 import 'winner.dart';
+import 'dart:ui'; // Import for the blur effect
 
 class Vote extends StatefulWidget {
   final bool isConfirming;
@@ -367,6 +368,8 @@ class _VoteState extends State<Vote> {
                         crossAxisSpacing: 4.0,
                         children: List.generate(groups.length, (int groupIndex) {
                           var group = groups[groupIndex];
+                          var validCandidates = group['candidates'].where((candidate) => candidates.contains(candidate)).toList();
+                          validCandidates.remove(groupAddresses[groupIndex]); // Remove the group address
                           return GestureDetector(
                             onTap: () {
                               setState(() {
@@ -379,75 +382,101 @@ class _VoteState extends State<Vote> {
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               color: (_selectedGroup == groupIndex) ? Colors.lightBlueAccent : Colors.white,
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  children: [
-                                    ListTile(
-                                      leading: Container(
-                                        width: 40,
-                                        height: 50,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
-                                          image: DecorationImage(
-                                            image: NetworkImage(group['pictureUrl']),
-                                            fit: BoxFit.cover,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(30),
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30),
+                                      color: Colors.white.withOpacity(0.2),
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.2),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Column(
+                                        children: [
+                                          ListTile(
+                                            leading: Container(
+                                              width: 40,
+                                              height: 50,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(10),
+                                                image: DecorationImage(
+                                                  image: NetworkImage(group['pictureUrl']),
+                                                  fit: BoxFit.cover,
+                                                  onError: (exception, stackTrace) {
+                                                    setState(() {
+                                                      group['pictureUrl'] = 'assets/placeholder.png';
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                            title: Text(
+                                              group['name'],
+                                              style: TextStyle(
+                                                color: (_selectedGroup == groupIndex) ? Colors.black : Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                      title: Text(
-                                        group['name'],
-                                        style: TextStyle(
-                                          color: (_selectedGroup == groupIndex) ? Colors.black : Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
+                                          CarouselSlider(
+                                            options: CarouselOptions(
+                                              height: 200,
+                                              enlargeCenterPage: true,
+                                              autoPlay: true,
+                                              aspectRatio: 16 / 9,
+                                              autoPlayCurve: Curves.fastOutSlowIn,
+                                              enableInfiniteScroll: true,
+                                              autoPlayAnimationDuration: Duration(milliseconds: 400),
+                                              viewportFraction: 0.8,
+                                            ),
+                                            items: validCandidates.map<Widget>((candidate) {
+                                              int candidateIndex = candidates.indexOf(candidate);
+                                              return Builder(
+                                                builder: (BuildContext context) {
+                                                  return Column(
+                                                    children: [
+                                                      Container(
+                                                        width: 100,
+                                                        height: 100,
+                                                        decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(20),
+                                                          image: DecorationImage(
+                                                            image: NetworkImage(imageUrls[candidateIndex]),
+                                                            fit: BoxFit.cover,
+                                                            onError: (exception, stackTrace) {
+                                                              setState(() {
+                                                                imageUrls[candidateIndex] = 'assets/placeholder.png';
+                                                              });
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 10),
+                                                      Text(
+                                                        "${firstNames[candidateIndex]} ${lastNames[candidateIndex]}",
+                                                        style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontWeight: FontWeight.bold,
+                                                          fontSize: 18,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    CarouselSlider(
-                                      options: CarouselOptions(
-                                        height: 200,
-                                        enlargeCenterPage: true,
-                                        autoPlay: true,
-                                        aspectRatio: 16 / 9,
-                                        autoPlayCurve: Curves.fastOutSlowIn,
-                                        enableInfiniteScroll: true,
-                                        autoPlayAnimationDuration: Duration(milliseconds: 600),
-                                        viewportFraction: 0.8,
-                                      ),
-                                      items: group['candidates'].map<Widget>((candidate) {
-                                        int candidateIndex = candidates.indexOf(candidate);
-                                        return Builder(
-                                          builder: (BuildContext context) {
-                                            return Column(
-                                              children: [
-                                                Container(
-                                                  width: 100,
-                                                  height: 100,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(20),
-                                                    image: DecorationImage(
-                                                      image: NetworkImage(imageUrls[candidateIndex]),
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(height: 10),
-                                                Text(
-                                                  "${firstNames[candidateIndex]} ${lastNames[candidateIndex]}",
-                                                  style: TextStyle(
-                                                    color:Colors.black,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 18,
-                                                  ),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
