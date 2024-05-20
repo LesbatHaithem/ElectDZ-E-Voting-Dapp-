@@ -1,11 +1,13 @@
-import 'dart:ui';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:mrtdeg/Back%20End/blockchain.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'Gradientbutton.dart';
+import 'winner.dart';
+import 'dart:ui'; // Import for the blur effect
 
 class Confirm extends StatefulWidget {
   final bool isConfirming;
@@ -18,11 +20,12 @@ class Confirm extends StatefulWidget {
 
 class _ConfirmState extends State<Confirm> {
   final _formKey = GlobalKey<FormState>();
-  final text_secret = TextEditingController();
+  final textSecretController = TextEditingController();
   AlertStyle animation = AlertStyle(animationType: AnimationType.grow);
+  bool _obscureText = true;
 
-  String quorum_text = "Loading Quorum...";
-  double quorum_circle = 0.0;
+  String quorumText = "Loading Quorum...";
+  double quorumCircle = 0.0;
   int step = -1;
 
   Blockchain blockchain = Blockchain();
@@ -35,7 +38,6 @@ class _ConfirmState extends State<Confirm> {
   List<dynamic> groupPictures = [];
   List<dynamic> groupAddresses = [];
 
-  List<bool> _expandedGroup = [];
   int _selectedGroup = -1;
 
   @override
@@ -91,14 +93,13 @@ class _ConfirmState extends State<Confirm> {
             return {
               'name': groupNames[index],
               'pictureUrl': groupPictures[index],
-              'candidateAddresses': groupDetails[2][index]
+              'candidates': groupDetails[2][index]
             };
           });
           candidates = groupDetails[3];
           firstNames = groupDetails[4];
           lastNames = groupDetails[5];
           imageUrls = groupDetails[6];
-          _expandedGroup = List<bool>.filled(groups.length, false);
         });
       } catch (error) {
         Navigator.of(context).pop();
@@ -173,11 +174,17 @@ class _ConfirmState extends State<Confirm> {
     Future.delayed(Duration(milliseconds: 500), () async => {
       blockchain.queryView("get_status", [await blockchain.myAddr()]).then((value) => {
         Navigator.of(context).pop(),
+        if (value[3] == false){
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Winner()),
+          )
+        },
         setState(() {
-          quorum_text = (value[0] != value[1])
+          quorumText = (value[0] != value[1])
               ? "${value[0] - value[1]} votes to quorum (${value[1]}/${value[0]})"
               : "Quorum reached! (Total voters: ${value[0]})";
-          quorum_circle = value[1] / value[0];
+          quorumCircle = value[1] / value[0];
           print(value);
           if (value[1] == value[0]) {
             if (value[2]) { // envelope not open
@@ -195,7 +202,7 @@ class _ConfirmState extends State<Confirm> {
             context: context,
             type: AlertType.error,
             title: "Error",
-            desc: blockchain.translateError(error),
+            desc: error.toString(),
             style: animation
         ).show();
       })
@@ -204,16 +211,45 @@ class _ConfirmState extends State<Confirm> {
 
   Future<void> _openVote() async {
     if (!checkSelection()) return;
-
-    print("Selected group: $_selectedGroup");
-    print("Secret text: ${text_secret.text}");
+    if (textSecretController.text.isEmpty) {
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "Error",
+        desc: "Please enter a secret code.",
+        style: AlertStyle(
+          animationType: AnimationType.grow,
+          isCloseButton: false,
+          isOverlayTapDismiss: false,
+          overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
+          alertBorder: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.secondary,
+              width: 1,
+            ),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.background,
+          titleStyle: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+          descStyle: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          animationDuration: const Duration(milliseconds: 500),
+          alertElevation: 0,
+        ),
+      ).show();
+      return;
+    }
 
     List<dynamic> args = [
-      BigInt.parse(text_secret.text), // secret as BigInt
-      groupAddresses[_selectedGroup] // group address
+      BigInt.parse(textSecretController.text), // Secret as BigInt
+      groupAddresses[_selectedGroup] // Group address
     ];
-
-    print("Arguments passed to blockchain: $args");
 
     Alert(
       context: context,
@@ -316,7 +352,7 @@ class _ConfirmState extends State<Confirm> {
           context: context,
           type: AlertType.error,
           title: "Error",
-          desc: blockchain.translateError(error),
+          desc: error.toString(), // blockchain.translateError(error)
         ).show();
       });
     });
@@ -357,100 +393,158 @@ class _ConfirmState extends State<Confirm> {
                   child: Column(
                     children: <Widget>[
                       const Text(
-                        'Confirm your previous vote',
+                        'Confirm Your Previous Vote',
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 20),
-                      Container(
-                        margin: const EdgeInsets.only(top: 0.0, bottom: 0.0),
-                        child: ExpansionPanelList(
-                          expansionCallback: (int index, bool isExpanded) {
-                            setState(() {
-                              _expandedGroup[index] = !isExpanded;
-                            });
-                          },
-                          children: groups.map<ExpansionPanel>((group) {
-                            int groupIndex = groups.indexOf(group);
-                            return ExpansionPanel(
-                              headerBuilder: (BuildContext context, bool isExpanded) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _expandedGroup[groupIndex] = !isExpanded;
-                                      _selectedGroup = groupIndex;
-                                    });
-                                  },
-                                  child: ListTile(
-                                    leading: Container(
-                                      width: 40,
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        image: DecorationImage(
-                                          image: NetworkImage(group['pictureUrl']),
-                                          fit: BoxFit.cover,
-                                        ),
+                      StaggeredGrid.count(
+                        crossAxisCount: 1,
+                        mainAxisSpacing: 4.0,
+                        crossAxisSpacing: 4.0,
+                        children: List.generate(groups.length, (int groupIndex) {
+                          var group = groups[groupIndex];
+                          var validCandidates = group['candidates'].where((candidate) => candidates.contains(candidate)).toList();
+                          validCandidates.remove(groupAddresses[groupIndex]); // Remove the group address
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedGroup = groupIndex;
+                              });
+                            },
+                            child: Card(
+                              elevation: 5,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              color: (_selectedGroup == groupIndex) ? Colors.lightBlueAccent : Colors.white,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(30),
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30),
+                                      color: Colors.white.withOpacity(0.2),
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.2),
+                                        width: 1.5,
                                       ),
                                     ),
-                                    title: Text(
-                                      group['name'],
-                                      style: TextStyle(
-                                        color: (_selectedGroup == groupIndex)
-                                            ? Colors.blue
-                                            : Theme.of(context).colorScheme.primary,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Column(
+                                        children: [
+                                          ListTile(
+                                            leading: Container(
+                                              width: 40,
+                                              height: 50,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(10),
+                                                image: DecorationImage(
+                                                  image: NetworkImage(group['pictureUrl']),
+                                                  fit: BoxFit.cover,
+                                                  onError: (exception, stackTrace) {
+                                                    setState(() {
+                                                      group['pictureUrl'] = 'assets/placeholder.png';
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                            title: Text(
+                                              group['name'],
+                                              style: TextStyle(
+                                                color: (_selectedGroup == groupIndex) ? Colors.black : Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                          ),
+                                          CarouselSlider(
+                                            options: CarouselOptions(
+                                              height: 200,
+                                              enlargeCenterPage: true,
+                                              autoPlay: true,
+                                              aspectRatio: 16 / 9,
+                                              autoPlayCurve: Curves.fastOutSlowIn,
+                                              enableInfiniteScroll: true,
+                                              autoPlayAnimationDuration: Duration(milliseconds: 400),
+                                              viewportFraction: 0.8,
+                                            ),
+                                            items: validCandidates.map<Widget>((candidate) {
+                                              int candidateIndex = candidates.indexOf(candidate);
+                                              return Builder(
+                                                builder: (BuildContext context) {
+                                                  return Column(
+                                                    children: [
+                                                      Container(
+                                                        width: 100,
+                                                        height: 100,
+                                                        decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(20),
+                                                          image: DecorationImage(
+                                                            image: NetworkImage(imageUrls[candidateIndex]),
+                                                            fit: BoxFit.cover,
+                                                            onError: (exception, stackTrace) {
+                                                              setState(() {
+                                                                imageUrls[candidateIndex] = 'assets/placeholder.png';
+                                                              });
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 10),
+                                                      Text(
+                                                        "${firstNames[candidateIndex]} ${lastNames[candidateIndex]}",
+                                                        style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontWeight: FontWeight.bold,
+                                                          fontSize: 18,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                );
-                              },
-                              body: Column(
-                                children: group['candidateAddresses'].map<Widget>((candidate) {
-                                  int candidateIndex = candidates.indexOf(candidate);
-                                  return ListTile(
-                                    leading: Container(
-                                      width: 40,
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        image: DecorationImage(
-                                          image: NetworkImage(imageUrls[candidateIndex]),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                    title: Text(
-                                      "${firstNames[candidateIndex]} ${lastNames[candidateIndex]}",
-                                      style: TextStyle(
-                                        color: Theme.of(context).colorScheme.primary,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                                ),
                               ),
-                              isExpanded: _expandedGroup[groupIndex],
-                            );
-                          }).toList(),
-                        ),
+                            ),
+                          );
+                        }),
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
                         decoration: InputDecoration(
-                          labelText: 'Secret code',
+                          labelText: 'Enter your Secret code',
                           border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20), // Rounded corners
                             borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary),
                           ),
                           enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20), // Rounded corners
                             borderSide: BorderSide(color: Colors.black),
                           ),
                           focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20), // Rounded corners
                             borderSide: BorderSide(color: Colors.blue, width: 2.0),
                           ),
                           contentPadding: EdgeInsets.all(16.0),
+                          suffixIcon: IconButton(
+                            icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
+                            onPressed: () {
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
+                            },
+                          ),
                         ),
+                        obscureText: _obscureText,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a secret code';
@@ -458,7 +552,7 @@ class _ConfirmState extends State<Confirm> {
                           return null;
                         },
                         keyboardType: TextInputType.number,
-                        controller: text_secret,
+                        controller: textSecretController,
                         inputFormatters: <TextInputFormatter>[
                           FilteringTextInputFormatter.digitsOnly,
                         ],
@@ -511,7 +605,7 @@ class _ConfirmState extends State<Confirm> {
                                   ListTile(
                                     leading: CircularProgressIndicator(
                                       color: Colors.green,
-                                      value: quorum_circle,
+                                      value: quorumCircle,
                                     ),
                                     trailing: ElevatedButton(
                                       style: ElevatedButton.styleFrom(
@@ -528,7 +622,7 @@ class _ConfirmState extends State<Confirm> {
                                       onPressed: _updateQuorum,
                                       child: Text("Update"),
                                     ),
-                                    title: Text('$quorum_text'),
+                                    title: Text('$quorumText'),
                                   ),
                                 ],
                               ),

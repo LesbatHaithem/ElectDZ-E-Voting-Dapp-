@@ -20,11 +20,12 @@ class Vote extends StatefulWidget {
 
 class _VoteState extends State<Vote> {
   final _formKey = GlobalKey<FormState>();
-  final text_secret = TextEditingController();
+  final textSecretController = TextEditingController();
   AlertStyle animation = AlertStyle(animationType: AnimationType.grow);
+  bool _obscureText = true;
 
-  String quorum_text = "Loading Quorum...";
-  double quorum_circle = 0.0;
+  String quorumText = "Loading Quorum...";
+  double quorumCircle = 0.0;
   int step = -1;
 
   Blockchain blockchain = Blockchain();
@@ -180,10 +181,10 @@ class _VoteState extends State<Vote> {
           )
         },
         setState(() {
-          quorum_text = (value[0] != value[1])
+          quorumText = (value[0] != value[1])
               ? "${value[0] - value[1]} votes to quorum (${value[1]}/${value[0]})"
               : "Quorum reached! (Total voters: ${value[0]})";
-          quorum_circle = value[1] / value[0];
+          quorumCircle = value[1] / value[0];
           print(value);
           if (value[1] == value[0]) {
             if (value[2]) { // envelope not open
@@ -209,11 +210,44 @@ class _VoteState extends State<Vote> {
   }
 
   Future<void> _sendVote() async {
-    if (!checkSelection())
+    if (!checkSelection()) return;
+    if (textSecretController.text.isEmpty) {
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "Error",
+        desc: "Please enter a secret code.",
+        style: AlertStyle(
+          animationType: AnimationType.grow,
+          isCloseButton: false,
+          isOverlayTapDismiss: false,
+          overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
+          alertBorder: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.secondary,
+              width: 1,
+            ),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.background,
+          titleStyle: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+          descStyle: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          animationDuration: const Duration(milliseconds: 500),
+          alertElevation: 0,
+        ),
+      ).show();
       return;
+    }
 
     List<dynamic> args = [
-      blockchain.encodeVote(BigInt.parse(text_secret.text), groupAddresses[_selectedGroup]) // Use group address
+      blockchain.encodeVote(BigInt.parse(textSecretController.text), groupAddresses[_selectedGroup]) // Use group address
     ];
 
     Alert(
@@ -486,18 +520,30 @@ class _VoteState extends State<Vote> {
                       const SizedBox(height: 20),
                       TextFormField(
                         decoration: InputDecoration(
-                          labelText: 'Secret code',
+                          labelText: 'Create Secret code',
                           border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20), // Rounded corners
                             borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary),
                           ),
                           enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20), // Rounded corners
                             borderSide: BorderSide(color: Colors.black),
                           ),
                           focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20), // Rounded corners
                             borderSide: BorderSide(color: Colors.blue, width: 2.0),
                           ),
                           contentPadding: EdgeInsets.all(16.0),
+                          suffixIcon: IconButton(
+                            icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
+                            onPressed: () {
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
+                            },
+                          ),
                         ),
+                        obscureText: _obscureText,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a secret code';
@@ -505,7 +551,7 @@ class _VoteState extends State<Vote> {
                           return null;
                         },
                         keyboardType: TextInputType.number,
-                        controller: text_secret,
+                        controller: textSecretController,
                         inputFormatters: <TextInputFormatter>[
                           FilteringTextInputFormatter.digitsOnly,
                         ],
@@ -558,7 +604,7 @@ class _VoteState extends State<Vote> {
                                   ListTile(
                                     leading: CircularProgressIndicator(
                                       color: Colors.green,
-                                      value: quorum_circle,
+                                      value: quorumCircle,
                                     ),
                                     trailing: ElevatedButton(
                                       style: ElevatedButton.styleFrom(
@@ -575,7 +621,7 @@ class _VoteState extends State<Vote> {
                                       onPressed: _updateQuorum,
                                       child: Text("Update"),
                                     ),
-                                    title: Text('$quorum_text'),
+                                    title: Text('$quorumText'),
                                   ),
                                 ],
                               ),
