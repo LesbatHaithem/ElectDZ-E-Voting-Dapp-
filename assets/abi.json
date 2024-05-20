@@ -2,11 +2,6 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "_candidates",
-        "type": "address[]"
-      },
-      {
         "internalType": "address payable",
         "name": "_escrow",
         "type": "address"
@@ -18,18 +13,18 @@
       },
       {
         "internalType": "string[]",
-        "name": "_firstNames",
+        "name": "_groupNames",
         "type": "string[]"
       },
       {
         "internalType": "string[]",
-        "name": "_lastNames",
+        "name": "_groupPictures",
         "type": "string[]"
       },
       {
-        "internalType": "string[]",
-        "name": "_imageUrls",
-        "type": "string[]"
+        "internalType": "address[]",
+        "name": "_groupAddresses",
+        "type": "address[]"
       }
     ],
     "stateMutability": "nonpayable",
@@ -60,7 +55,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_sign",
+        "name": "_group",
         "type": "address"
       }
     ],
@@ -86,32 +81,12 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_candidate",
+        "name": "_group",
         "type": "address"
       }
     ],
     "name": "NewMayor",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "candidate",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
   },
   {
     "inputs": [
@@ -150,6 +125,69 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "groups",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "pictureUrl",
+        "type": "string"
+      },
+      {
+        "internalType": "uint32",
+        "name": "votes",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "candidateAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "firstName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "lastName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "imageUrl",
+        "type": "string"
+      }
+    ],
+    "name": "addCandidateToGroup",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "_envelope",
         "type": "bytes32"
@@ -169,7 +207,7 @@
       },
       {
         "internalType": "address",
-        "name": "_sign",
+        "name": "_group",
         "type": "address"
       }
     ],
@@ -227,26 +265,41 @@
   },
   {
     "inputs": [],
-    "name": "getCandidateNames",
+    "name": "getAllDetails",
     "outputs": [
       {
+        "internalType": "string[]",
+        "name": "groupNames",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "groupPictures",
+        "type": "string[]"
+      },
+      {
+        "internalType": "address[][]",
+        "name": "groupCandidatesArray",
+        "type": "address[][]"
+      },
+      {
         "internalType": "address[]",
-        "name": "addresses",
+        "name": "candidateAddresses",
         "type": "address[]"
       },
       {
         "internalType": "string[]",
-        "name": "firstNames",
+        "name": "candidateFirstNames",
         "type": "string[]"
       },
       {
         "internalType": "string[]",
-        "name": "lastNames",
+        "name": "candidateLastNames",
         "type": "string[]"
       },
       {
         "internalType": "string[]",
-        "name": "imageUrls",
+        "name": "candidateImageUrls",
         "type": "string[]"
       }
     ],
@@ -260,27 +313,22 @@
     "outputs": [
       {
         "internalType": "address[]",
-        "name": "",
+        "name": "groupAddresses",
         "type": "address[]"
       },
       {
-        "internalType": "uint256[]",
-        "name": "",
-        "type": "uint256[]"
+        "internalType": "uint32[]",
+        "name": "groupVotes",
+        "type": "uint32[]"
       },
       {
         "internalType": "string[]",
-        "name": "firstNames",
+        "name": "groupNames",
         "type": "string[]"
       },
       {
         "internalType": "string[]",
-        "name": "lastNames",
-        "type": "string[]"
-      },
-      {
-        "internalType": "string[]",
-        "name": "imageUrls",
+        "name": "groupPictures",
         "type": "string[]"
       }
     ],

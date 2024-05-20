@@ -1,13 +1,13 @@
 class WinnerModel {
-  String? addr;
+  String? groupAddr;
   BigInt? votes;
-  String? firstName;
-  String? lastName;
+  String? groupName;
+  String? pictureUrl;
 
-  WinnerModel(String addr, BigInt votes, String firstName , String lastName ) {
-    this.addr = addr;
+  WinnerModel(String groupAddr, BigInt votes, String groupName, String pictureUrl) {
+    this.groupAddr = groupAddr;
     this.votes = votes;
-    this.firstName = firstName;
-    this.lastName = lastName;
+    this.groupName = groupName;
+    this.pictureUrl = pictureUrl;
   }
 }

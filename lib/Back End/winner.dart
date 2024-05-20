@@ -1,14 +1,12 @@
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
-import 'package:jdenticon_dart/jdenticon_dart.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:mrtdeg/Back End/blockchain.dart';
-import 'package:mrtdeg/Back End/splash.dart';
-import 'package:mrtdeg/Back End/utils.dart';
-import 'package:mrtdeg/Back End/winnerModel.dart';
+import 'package:mrtdeg/Back%20End/blockchain.dart';
+import 'package:mrtdeg/Back%20End/splash.dart';
+import 'package:mrtdeg/Back%20End/utils.dart';
+import 'package:mrtdeg/Back%20End/winnerModel.dart';
 import 'package:web3dart/json_rpc.dart';
-import 'package:mrtdeg/Back End/Gradientbutton.dart';
+import 'package:mrtdeg/Back%20End/Gradientbutton.dart';
 
 class Winner extends StatefulWidget {
   @override
@@ -19,20 +17,18 @@ class _WinnerState extends State<Winner> {
   Blockchain blockchain = Blockchain();
 
   late ConfettiController _controllerCenter;
-  List<WinnerModel> candidates = [new WinnerModel("Loading", BigInt.zero,"Loading","Loading")];
+  List<WinnerModel> groups = [WinnerModel("Loading", BigInt.zero, "Loading", "")];
   bool? valid;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _updateCandidates());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateGroups());
     _controllerCenter = ConfettiController(duration: const Duration(seconds: 5));
   }
 
-
-  Future<void> _updateCandidates() async {
-    print("Fetching candidates...");
+  Future<void> _updateGroups() async {
+    print("Fetching groups...");
     Alert(
       context: context,
       title: "Getting results...",
@@ -71,19 +67,19 @@ class _WinnerState extends State<Winner> {
         Navigator.of(context).pop();
         print("Results fetched successfully: $value");
         setState(() {
-          candidates = [];
+          groups = [];
           for (int i = 0; i < value[0].length; i++) {
-            String address = value[0][i].toString();
+            String groupAddr = value[0][i].toString();
             BigInt votes = BigInt.parse(value[1][i].toString());
-            String firstNames = value[2][i].toString();
-            String lastNames = value[3][i].toString();
+            String groupName = value[2][i].toString();
+            String pictureUrl = value[3][i].toString();
 
-            candidates.add(WinnerModel(address, votes, firstNames, lastNames));
+            groups.add(WinnerModel(groupAddr, votes, groupName, pictureUrl));
           }
-          // Sort candidates by votes in descending order
-          candidates.sort((a, b) => b.votes!.compareTo(a.votes!));
+          // Sort groups by votes in descending order
+          groups.sort((a, b) => b.votes!.compareTo(a.votes!));
           valid = true;
-          print("Candidates updated and sorted. 'valid' set to true.");
+          print("Groups updated and sorted. 'valid' set to true.");
         });
         _controllerCenter.play();
         Future.delayed(const Duration(seconds: 5), () {
@@ -132,7 +128,6 @@ class _WinnerState extends State<Winner> {
             buttonAreaPadding: EdgeInsets.all(20),
             alertPadding: EdgeInsets.all(20),
           ),
-
         ).show();
       });
     });
@@ -140,43 +135,35 @@ class _WinnerState extends State<Winner> {
 
   @override
   Widget build(BuildContext context) {
-// Initialize 'body' to a default widget to ensure it's never null.
+    // Initialize 'body' to a default widget to ensure it's never null.
     Widget body = Center(
-      child: Text("Unknown state",
-        style: TextStyle(fontSize: 40, color: Colors.red),
-      ),
+      child: Text("Unknown state", style: TextStyle(fontSize: 40, color: Colors.red)),
     );
-    if (valid == null){
+    if (valid == null) {
       body = Center(
         child: Container(
           margin: const EdgeInsets.only(top: 30.0),
           child: Column(
             children: <Widget>[
-              Text("Loading Page ",
-                style: TextStyle(fontSize: 40),
-              )
+              Text("Loading Page ", style: TextStyle(fontSize: 40)),
             ],
           ),
         ),
       );
-    } else if (valid == false){
+    } else if (valid == false) {
       body = Center(
         child: Container(
           margin: const EdgeInsets.only(top: 30.0),
           child: Column(
             children: <Widget>[
-              Text("Invalid Elections",
-                style: TextStyle(fontSize: 40, color: Colors.black),
-              ),
-              Text("There was a tie, so no new Mayor.!",
-                  style: TextStyle(fontSize: 25, color: Colors.black),
-
-                  textAlign: TextAlign.center
+              Text("Invalid Elections", style: TextStyle(fontSize: 40, color: Colors.black)),
+              Text(
+                "There was a tie, so no new Mayor.!",
+                style: TextStyle(fontSize: 25, color: Colors.black),
+                textAlign: TextAlign.center,
               ),
               SizedBox(height: 70),
-              Image.asset("assets/invalid.png",
-                  width: MediaQuery.of(context).size.width * 0.8
-              ),
+              Image.asset("assets/invalid.png", width: MediaQuery.of(context).size.width * 0.8),
               SizedBox(height: 50),
               GradientButton(
                 text: "Log Out",
@@ -190,16 +177,15 @@ class _WinnerState extends State<Winner> {
                     );
                   });
                 },
-                icon: Icon(Icons.logout, color: Colors.black),  // Add an icon if it suits your design
-                width: 200,  // Optional: Adjust the width as necessary
-                height: 50,  // Standard touch target height
-              )
-,
+                icon: Icon(Icons.logout, color: Colors.black), // Add an icon if it suits your design
+                width: 200, // Optional: Adjust the width as necessary
+                height: 50, // Standard touch target height
+              ),
             ],
           ),
         ),
       );
-    } else if (valid == true){
+    } else if (valid == true) {
       body = Stack(
         children: [
           Center(
@@ -213,66 +199,36 @@ class _WinnerState extends State<Winner> {
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         ListTile(
-                          leading: Text(
-                              "👑",
-                              style: TextStyle(fontSize: 25)
-                          ),
-                          trailing: SvgPicture.string(
-                            Jdenticon.toSvg("${candidates[0].addr}"),
-                            fit: BoxFit.fill,
-                            height: 50,
-                            width: 50,
-                          ),
-                          title: Text("${candidates[0].firstName} ${candidates[0].lastName}"),
+                          leading: Text("👑", style: TextStyle(fontSize: 25)),
+                          title: Text("${groups[0].groupName}"),
+                          subtitle: Text("Votes: ${groups[0].votes}"),
                         ),
+                        Image.network(groups[0].pictureUrl!, fit: BoxFit.cover),
                       ],
                     ),
                   ),
-                  SizedBox(
-                      height:15
-                  ),
-                  Text(
-                      "Ranked List",
-                      style: TextStyle(fontSize: 40)
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+                  SizedBox(height: 15),
+                  Text("Ranked List", style: TextStyle(fontSize: 40)),
+                  Expanded(
                     child: ListView.builder(
-                      itemCount: candidates.length,
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
+                      itemCount: groups.length,
                       itemBuilder: (context, index) {
                         return Card(
                           color: Colors.white,
                           child: ListTile(
-                            leading: ExcludeSemantics(
-                              child: Stack(
-                                  children: [
-                                    SvgPicture.string(
-                                      Jdenticon.toSvg("${candidates[index].addr}"),
-                                      fit: BoxFit.fill,
-                                      height: 50,
-                                      width: 50,
-                                    ),
-                                    Text(
-                                        (() {
-                                          switch(index){
-                                            case 0: return "🥇";
-                                            case 1: return "🥈";
-                                            case 2: return "🥉";
-                                          }
-                                          return "";
-                                        }()),
-                                        textAlign: TextAlign.right,
-                                        style: TextStyle(fontSize: 30)
-                                    ),
-                                  ]
+                            title: Text("${groups[index].groupName}", style: TextStyle(color: Colors.black)),
+                            subtitle: Text('🗳 Votes: ${groups[index].votes}'),
+                            trailing: Container(
+                              width: 40,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                image: DecorationImage(
+                                  image: NetworkImage(groups[index].pictureUrl!),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                            title: Text(
-                                "${candidates[index].firstName} ${candidates[index].lastName}",                                style: TextStyle(color: Colors.black)
-                            ),
-                            subtitle: Text(' 🗳 Votes: ' + candidates[index].votes.toString()),
                           ),
                         );
                       },
@@ -286,16 +242,14 @@ class _WinnerState extends State<Winner> {
             alignment: Alignment.topCenter,
             child: ConfettiWidget(
               confettiController: _controllerCenter,
-              blastDirectionality: BlastDirectionality
-                  .explosive, // don't specify a direction, blast randomly
-              shouldLoop:
-              true, // start again as soon as the animation is finished
+              blastDirectionality: BlastDirectionality.explosive, // don't specify a direction, blast randomly
+              shouldLoop: true, // start again as soon as the animation is finished
               colors: const [
                 Colors.green,
                 Colors.blue,
                 Colors.red,
                 Colors.yellowAccent,
-                Colors.purple
+                Colors.purple,
               ],
             ),
           ),
@@ -332,7 +286,5 @@ class _WinnerState extends State<Winner> {
         child: body, // Your original body widget
       ),
     );
-
-
   }
 }

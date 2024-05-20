@@ -5,7 +5,6 @@ import 'package:web3dart/crypto.dart';
 import 'package:web3dart/json_rpc.dart';
 import 'package:web3dart/web3dart.dart';
 
-
 class Blockchain {
 
   String? contractAddr;
@@ -14,7 +13,7 @@ class Blockchain {
   late Credentials creds;
   late DeployedContract contract;
 
-  Blockchain(){
+  Blockchain() {
     SharedPreferences.getInstance().then((prefs) => {
       creds = EthPrivateKey.fromHex(prefs.getString('key')!),
       contractAddr = prefs.getString("contract")
@@ -28,7 +27,7 @@ class Blockchain {
     });
   }
 
-  DeployedContract loadContract(String abi){
+  DeployedContract loadContract(String abi) {
     final contract = DeployedContract(ContractAbi.fromJson(abi, "Mayor"), EthereumAddress.fromHex(contractAddr!));
     return contract;
   }
@@ -40,8 +39,6 @@ class Blockchain {
       contract: contract,
       function: contract.function(fun),
       params: args,
-
-
     );
   }
 
@@ -51,12 +48,12 @@ class Blockchain {
     return ethClient.sendTransaction(
         creds,
         Transaction.callContract(
-      contract: contract,
-      function: contract.function(fun),
-      parameters: args,
-      value: EtherAmount.inWei(wei),
-      maxGas: 999999,
-    ),
+          contract: contract,
+          function: contract.function(fun),
+          parameters: args,
+          value: EtherAmount.inWei(wei),
+          maxGas: 999999,
+        ),
         chainId: 1337,
         fetchChainIdFromNetworkId: false
     );
@@ -64,19 +61,14 @@ class Blockchain {
 
   String translateError(RPCError error) {
     String errorMessage = error.message;
-    // This assumes that error.message is directly accessible and contains the error message.
-    // Adjust according to your actual RPCError structure.
 
     if (errorMessage.contains("revert")) {
-      // Split on "revert" and take the second part, which is the error message post-revert
       List<String> parts = errorMessage.split("revert");
       if (parts.length > 1) {
-        // Further clean up to remove any trailing characters or quotation marks
         return parts[1].trim().replaceAll(RegExp(r'[."]+$'), "");
       }
     }
 
-    // Default to returning the full error message if not processed above
     return errorMessage;
   }
 
@@ -84,14 +76,14 @@ class Blockchain {
     try {
       var blockNumber = await ethClient.getBlockNumber();
       print("Current block number: $blockNumber");
-      return true;  // Connection is good
+      return true;
     } catch (error) {
-      print("Blockchain connection failedd: $error");
-      return false; // Connection failed
+      print("Blockchain connection failed: $error");
+      return false;
     }
   }
 
-  void logout(){
+  void logout() {
     SharedPreferences.getInstance().then((prefs) => {
       prefs.remove('key'),
       prefs.remove('contract')
@@ -103,8 +95,8 @@ class Blockchain {
     return address;
   }
 
-  Uint8List encodeVote(BigInt secret, EthereumAddress addr) {
-    List<dynamic> parameters = [secret, addr];
+  Uint8List encodeVote(BigInt secret, EthereumAddress groupAddress) {
+    List<dynamic> parameters = [secret, groupAddress];
     AbiType type = const TupleType([UintType(), AddressType()]);
     final sink = LengthTrackingByteSink();
     type.encode(parameters, sink);

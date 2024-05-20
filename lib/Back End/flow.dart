@@ -300,7 +300,7 @@ class _FlowScreenState extends State<FlowScreen> {
                 icon: Icon(Icons.check_circle_outline, color: Colors.black),  // Add the icon with the appropriate color
                 onPressed: step == 1 ? () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Confrim(isConfirming: true)),  // Corrected typo "Confrim" to "Confirm"
+                  MaterialPageRoute(builder: (context) => Confirm(isConfirming: true)),  // Corrected typo "Confrim" to "Confirm"
                 ) : null,
                 width: 200,  // Optional width setting
                 height: 50,  // Standard button height

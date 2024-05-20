@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'main.dart';
+import 'package:mrtdeg/main.dart';
 import 'package:mrtdeg/Front End//voter_profile.dart';
 import 'package:mrtdeg/Front End//home_page.dart';
 
