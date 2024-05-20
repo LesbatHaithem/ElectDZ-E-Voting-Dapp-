@@ -37,7 +37,7 @@ module.exports = function(deployer) {
               address: "0x02a5895047EC40a62183F50657fb362C57e5e83d",
               firstName: "Boudraa",
               lastName: "Soufiane",
-              imageUrl: "https://gateway.pinata.cloud/ipfs/QmVJu6zhRBHNHNeC8ZVmXFBUxKcRkPfKRhxNhoRNdVH1c9",
+              imageUrl: "https://white-high-quokka-246.mypinata.cloud/ipfs/QmNuiSq99N1UrAiPoAqWpmzuqXfVdbKxgrpqJXBSF89L4r",
               groupAddress: "0x2b791c9663960043F05F9fe525bc6F6e1480fC4D"
             },
       {

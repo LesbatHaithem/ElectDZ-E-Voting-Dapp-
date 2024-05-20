@@ -378,6 +378,7 @@ class _VoteState extends State<Vote> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15),
                               ),
+                              color: (_selectedGroup == groupIndex) ? Colors.blue.withOpacity(0.1) : Colors.white,
                               child: Padding(
                                 padding: const EdgeInsets.all(10.0),
                                 child: Column(
@@ -397,7 +398,7 @@ class _VoteState extends State<Vote> {
                                       title: Text(
                                         group['name'],
                                         style: TextStyle(
-                                          color: (_selectedGroup == groupIndex) ? Colors.blue : Colors.grey,
+                                          color: (_selectedGroup == groupIndex) ? Colors.blue : Colors.black,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 18,
                                         ),
@@ -418,35 +419,29 @@ class _VoteState extends State<Vote> {
                                         int candidateIndex = candidates.indexOf(candidate);
                                         return Builder(
                                           builder: (BuildContext context) {
-                                            return Card(
-                                              elevation: 5,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(15),
-                                              ),
-                                              child: Column(
-                                                children: [
-                                                  Container(
-                                                    width: 100,
-                                                    height: 100,
-                                                    decoration: BoxDecoration(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                      image: DecorationImage(
-                                                        image: NetworkImage(imageUrls[candidateIndex]),
-                                                        fit: BoxFit.cover,
-                                                      ),
+                                            return Column(
+                                              children: [
+                                                Container(
+                                                  width: 100,
+                                                  height: 100,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                    image: DecorationImage(
+                                                      image: NetworkImage(imageUrls[candidateIndex]),
+                                                      fit: BoxFit.cover,
                                                     ),
                                                   ),
-                                                  SizedBox(height: 10),
-                                                  Text(
-                                                    "${firstNames[candidateIndex]} ${lastNames[candidateIndex]}",
-                                                    style: TextStyle(
-                                                      color: Theme.of(context).colorScheme.primary,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18,
-                                                    ),
+                                                ),
+                                                SizedBox(height: 10),
+                                                Text(
+                                                  "${firstNames[candidateIndex]} ${lastNames[candidateIndex]}",
+                                                  style: TextStyle(
+                                                    color:Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             );
                                           },
                                         );
