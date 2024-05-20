@@ -376,9 +376,9 @@ class _VoteState extends State<Vote> {
                             child: Card(
                               elevation: 5,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(30),
                               ),
-                              color: (_selectedGroup == groupIndex) ? Colors.blue.withOpacity(0.1) : Colors.white,
+                              color: (_selectedGroup == groupIndex) ? Colors.lightBlueAccent : Colors.white,
                               child: Padding(
                                 padding: const EdgeInsets.all(10.0),
                                 child: Column(
@@ -398,7 +398,7 @@ class _VoteState extends State<Vote> {
                                       title: Text(
                                         group['name'],
                                         style: TextStyle(
-                                          color: (_selectedGroup == groupIndex) ? Colors.blue : Colors.black,
+                                          color: (_selectedGroup == groupIndex) ? Colors.black : Colors.black,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 18,
                                         ),
@@ -412,7 +412,7 @@ class _VoteState extends State<Vote> {
                                         aspectRatio: 16 / 9,
                                         autoPlayCurve: Curves.fastOutSlowIn,
                                         enableInfiniteScroll: true,
-                                        autoPlayAnimationDuration: Duration(milliseconds: 800),
+                                        autoPlayAnimationDuration: Duration(milliseconds: 600),
                                         viewportFraction: 0.8,
                                       ),
                                       items: group['candidates'].map<Widget>((candidate) {
@@ -425,7 +425,7 @@ class _VoteState extends State<Vote> {
                                                   width: 100,
                                                   height: 100,
                                                   decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(10),
+                                                    borderRadius: BorderRadius.circular(20),
                                                     image: DecorationImage(
                                                       image: NetworkImage(imageUrls[candidateIndex]),
                                                       fit: BoxFit.cover,
