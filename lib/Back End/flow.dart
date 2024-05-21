@@ -8,6 +8,7 @@ import 'package:mrtdeg/Back%20End/winner.dart';
 import 'package:mrtdeg/Back%20End/Confirm.dart';
 import 'Gradientbutton.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FlowScreen extends StatefulWidget {
   @override
@@ -18,10 +19,12 @@ class _FlowScreenState extends State<FlowScreen> {
   final Blockchain blockchain = Blockchain();
   final AlertStyle animation = AlertStyle(animationType: AnimationType.grow);
   final PageController _pageController = PageController();
+  final GlobalKey _overlayKey = GlobalKey();
 
   String quorumText = "Loading Quorum...";
   double quorumCircle = 0.0;
   int step = 0;
+  bool showOverlay = false;
 
   final List<List<String>> imageUrlsPerStep = [
     [
@@ -31,8 +34,10 @@ class _FlowScreenState extends State<FlowScreen> {
       'https://white-high-quokka-246.mypinata.cloud/ipfs/QmZYwdYy83ajbPXcQ85Ey7gP93rrvHxYfGKDv6reiiwca6',
     ],
     [
+      'https://white-high-quokka-246.mypinata.cloud/ipfs/QmTnXhXzSHHwgZzR5Y7zNAF3DU87pKUMCFL1bSeMnYaRga',
       'https://white-high-quokka-246.mypinata.cloud/ipfs/QmWjfzn3qE3VmhvFWxM99HnmrgpdnEivEg4vm4iD4MaLxv',
       'https://white-high-quokka-246.mypinata.cloud/ipfs/QmSGEqUgPg3X8kThv9J2atRrDxhDEJHzWaq3HAJDQDZKqA',
+      'https://white-high-quokka-246.mypinata.cloud/ipfs/Qmb18RQhZSesitQ253WkxKWjonQPAFUXtpYCwuT6DuNzmF',
     ],
     [
       'https://white-high-quokka-246.mypinata.cloud/ipfs/QmQJ2uhGpz5zo1iVHzRXG9qFhzsYGAaRLZ4WmcFNKVf5ps',
@@ -45,6 +50,18 @@ class _FlowScreenState extends State<FlowScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _initialUpdateQuorum());
+    _checkFirstVisit();
+  }
+
+  Future<void> _checkFirstVisit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isFirstVisit = prefs.getBool('isFirstVisit') ?? true;
+    if (isFirstVisit) {
+      setState(() {
+        showOverlay = true;
+      });
+      prefs.setBool('isFirstVisit', false);
+    }
   }
 
   Future<void> _mayorOrSayonara() async {
@@ -259,6 +276,45 @@ class _FlowScreenState extends State<FlowScreen> {
     );
   }
 
+  Widget _buildOverlay() {
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Container(
+            color: Colors.black.withOpacity(0.8),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.swipe, color: Colors.white, size: 100),
+                  Text(
+                    "Slide to navigate",
+                    style: GoogleFonts.poppins(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        showOverlay = false;
+                      });
+                    },
+                    child: Text("Got it!"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildStep({required String title, required String description, required List<Widget> actions, required List<String> imageUrls}) {
     return Center(
       child: Container(
@@ -324,7 +380,7 @@ class _FlowScreenState extends State<FlowScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       child: Container(
         width: 400,
-        height: 65,
+        height: 60,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.0),
           gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Colors.white, Colors.blue]),
@@ -380,21 +436,29 @@ class _FlowScreenState extends State<FlowScreen> {
           ),
         ),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          _buildQuorumCard(),
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  step = index;
-                });
-              },
-              children: _buildSteps(),
-            ),
+          Column(
+            children: [
+              _buildQuorumCard(),
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      step = index;
+                    });
+                  },
+                  children: _buildSteps(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(2.8),
+                child: _buildStepIndicator(),
+              ),
+            ],
           ),
-          _buildStepIndicator(),
+          if (showOverlay) _buildOverlay(),
         ],
       ),
     );

@@ -57,10 +57,10 @@ class _SplashScreenState extends State<SplashScreen> {
         });
       } else {
         setState(() {
-          Navigator.pushAndRemoveUntil(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => FlowScreen()),
-                (Route<dynamic> route) => false,
+               // (Route<dynamic> route) => false,
           );
         });
       }
@@ -84,17 +84,20 @@ class _SplashScreenState extends State<SplashScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                SvgPicture.asset(
-                  'assets/logo.svg', // Replace with your logo image path
-                  width: 400,
-                  height: 400,
+                SizedBox(
+                  height: 400.0,
+                  child: SvgPicture.asset(
+                    'assets/logo.svg', // Replace with your logo image path
+                    width: 400,
+                    height: 400,
+                  ),
                 ),
                 SizedBox(height: 5.0),
                 SizedBox(
-                  height: 100.0,
+                  height: 80.0,
                   child: Lottie.asset('assets/splashb.json', width: 300),
                 ),
-                SizedBox(height: 25.0),
+                SizedBox(height: 1.0),
                 Container(
                   alignment: Alignment.center,
                   child: Container(
@@ -145,7 +148,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 25.0),
+                SizedBox(height: 20.0),
                 Text(
                   "Welcome to the future of voting",
                   style: TextStyle(

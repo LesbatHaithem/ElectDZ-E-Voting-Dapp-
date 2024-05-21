@@ -7,7 +7,9 @@ import 'package:mrtdeg/Back%20End/utils.dart';
 import 'package:mrtdeg/Back%20End/winnerModel.dart';
 import 'package:web3dart/json_rpc.dart';
 import 'package:mrtdeg/Back%20End/Gradientbutton.dart';
-import 'package:mrtdeg/Back%20End/flow.dart'; // Ensure the correct import path
+import 'package:mrtdeg/Back%20End/flow.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'dart:ui'; // Import for the blur effect
 
 class Winner extends StatefulWidget {
   @override
@@ -136,7 +138,6 @@ class _WinnerState extends State<Winner> {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize 'body' to a default widget to ensure it's never null.
     Widget body = Center(
       child: Text("Unknown state", style: TextStyle(fontSize: 40, color: Colors.red)),
     );
@@ -178,9 +179,9 @@ class _WinnerState extends State<Winner> {
                     );
                   });
                 },
-                icon: Icon(Icons.logout, color: Colors.black), // Add an icon if it suits your design
-                width: 200, // Optional: Adjust the width as necessary
-                height: 50, // Standard touch target height
+                icon: Icon(Icons.logout, color: Colors.black),
+                width: 200,
+                height: 50,
               ),
             ],
           ),
@@ -189,62 +190,135 @@ class _WinnerState extends State<Winner> {
     } else if (valid == true) {
       body = Stack(
         children: [
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 30.0),
-              child: Column(
-                children: <Widget>[
-                  Card(
-                    color: Colors.yellow,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        ListTile(
-                          leading: Text("👑", style: TextStyle(fontSize: 25)),
-                          title: Text("${groups[0].groupName}"),
-                          subtitle: Text("Votes: ${groups[0].votes}"),
-                        ),
-                        Image.network(groups[0].pictureUrl!, fit: BoxFit.cover),
-                      ],
-                    ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                // Top Winner
+                Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                  SizedBox(height: 15),
-                  Text("Ranked List", style: TextStyle(fontSize: 40)),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: groups.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          color: Colors.white,
-                          child: ListTile(
-                            title: Text("${groups[index].groupName}", style: TextStyle(color: Colors.black)),
-                            subtitle: Text('🗳 Votes: ${groups[index].votes}'),
-                            trailing: Container(
-                              width: 40,
-                              height: 50,
+                  color: Colors.yellow,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: Colors.white.withOpacity(0.2),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            ListTile(
+                              leading: Text("👑", style: TextStyle(fontSize: 25)),
+                              title: Text(groups[0].groupName!),
+                              subtitle: Text("Votes: ${groups[0].votes}"),
+                            ),
+                            Container(
+                              height: 350,
+                              width: double.infinity,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(30),
+                                  bottomRight: Radius.circular(30),
+                                ),
                                 image: DecorationImage(
-                                  image: NetworkImage(groups[index].pictureUrl!),
+                                  image: NetworkImage(groups[0].pictureUrl!),
                                   fit: BoxFit.cover,
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      },
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ],
-              ),
+                ),
+                SizedBox(height: 20),
+                // Ranked List
+                Expanded(
+                  child: MasonryGridView.builder(
+                    gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                    ),
+                    mainAxisSpacing: 4.0,
+                    crossAxisSpacing: 4.0,
+                    itemCount: groups.length - 1,
+                    itemBuilder: (context, index) {
+                      final group = groups[index + 1];
+                      String leadingIcon = "🏅";
+                      if (index == 0) {
+                        leadingIcon = "🥈";
+                      } else if (index == 1) {
+                        leadingIcon = "🥉";
+                      }
+                      return Card(
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        color: Colors.white,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(30),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.white.withOpacity(0.2),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.2),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  ListTile(
+                                    leading: Text(leadingIcon, style: TextStyle(fontSize: 25)),
+                                    title: Text(group.groupName!),
+                                    subtitle: Text("Votes: ${group.votes}"),
+                                  ),
+                                  Container(
+                                    height: 150,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(30),
+                                        bottomRight: Radius.circular(30),
+                                      ),
+                                      image: DecorationImage(
+                                        image: NetworkImage(group.pictureUrl!),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           Align(
             alignment: Alignment.topCenter,
             child: ConfettiWidget(
               confettiController: _controllerCenter,
-              blastDirectionality: BlastDirectionality.explosive, // don't specify a direction, blast randomly
-              shouldLoop: true, // start again as soon as the animation is finished
+              blastDirectionality: BlastDirectionality.explosive,
+              shouldLoop: true,
               colors: const [
                 Colors.green,
                 Colors.blue,
@@ -259,28 +333,27 @@ class _WinnerState extends State<Winner> {
     }
     return Scaffold(
       appBar: PreferredSize(
-        child: Container(
-          child: AppBar(
-            title: Text("ElectDz", style: TextStyle(
-              color: Colors.black,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            )),
-            backgroundColor: Colors.transparent,
-            elevation: 0.0,
-            centerTitle: true,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () =>
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => FlowScreen()),
-                        (Route<dynamic> route) => false,
-                  ),
+        preferredSize: Size.fromHeight(60.0),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+            child: AppBar(
+              backgroundColor: Theme.of(context).colorScheme.background,
+              title: Text('Winner', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+              elevation: 0,
+              centerTitle: true,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: () => Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => FlowScreen()),
+                      (Route<dynamic> route) => false,
+                ),
+              ),
             ),
           ),
         ),
-        preferredSize: Size(MediaQuery.of(context).size.width, 45),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -288,12 +361,12 @@ class _WinnerState extends State<Winner> {
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
             colors: [
-              Colors.white, // Start color of the gradient
-              Colors.blue, // End color of the gradient
+              Colors.white,
+              Colors.blue,
             ],
           ),
         ),
-        child: body, // Your original body widget
+        child: body,
       ),
     );
   }
