@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mrtdeg/Back End/qr.dart';
+import 'package:mrtdeg/Back%20End/qr.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
 import 'blockchain.dart';
 import 'login.dart';
 import 'flow.dart';
@@ -20,7 +20,6 @@ class NoBlockChainScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -38,8 +37,6 @@ class _SplashScreenState extends State<SplashScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => QRScreen()),
-                //(Route<dynamic> route) => false,
-
           );
         });
       } else if (key == null) {
@@ -87,8 +84,14 @@ class _SplashScreenState extends State<SplashScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                SvgPicture.asset(
+                  'assets/logo.svg', // Replace with your logo image path
+                  width: 400,
+                  height: 400,
+                ),
+                SizedBox(height: 5.0),
                 SizedBox(
-                  height: 155.0,
+                  height: 100.0,
                   child: Lottie.asset('assets/splashb.json', width: 300),
                 ),
                 SizedBox(height: 25.0),
@@ -132,7 +135,7 @@ class _SplashScreenState extends State<SplashScreen> {
                         child: AnimatedTextKit(
                           animatedTexts: [
                             WavyAnimatedText(
-                              "Elect-Dz",
+                              "Electdz",
                               speed: Duration(milliseconds: 300),
                             ),
                           ],
@@ -157,7 +160,8 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       ),
     );
-  }}
+  }
+}
 
 class _NoBlockChainScreenState extends State<NoBlockChainScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;

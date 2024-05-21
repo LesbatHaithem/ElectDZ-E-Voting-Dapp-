@@ -34,7 +34,7 @@ class GradientButton extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [Colors.cyanAccent, Colors.white],  // Gradient colors from green to white
+          colors: [Colors.green, Colors.white],  // Gradient colors from green to white
         ),
         borderRadius: BorderRadius.circular(30.0),
         boxShadow: [

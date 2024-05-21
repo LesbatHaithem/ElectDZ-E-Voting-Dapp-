@@ -7,6 +7,7 @@ import 'package:mrtdeg/Back%20End/utils.dart';
 import 'package:mrtdeg/Back%20End/winnerModel.dart';
 import 'package:web3dart/json_rpc.dart';
 import 'package:mrtdeg/Back%20End/Gradientbutton.dart';
+import 'package:mrtdeg/Back%20End/flow.dart'; // Ensure the correct import path
 
 class Winner extends StatefulWidget {
   @override
@@ -268,6 +269,15 @@ class _WinnerState extends State<Winner> {
             backgroundColor: Colors.transparent,
             elevation: 0.0,
             centerTitle: true,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () =>
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => FlowScreen()),
+                        (Route<dynamic> route) => false,
+                  ),
+            ),
           ),
         ),
         preferredSize: Size(MediaQuery.of(context).size.width, 45),

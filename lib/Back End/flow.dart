@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:mrtdeg/Back%20End/blockchain.dart';
@@ -6,6 +7,7 @@ import 'package:mrtdeg/Back%20End/splash.dart';
 import 'package:mrtdeg/Back%20End/winner.dart';
 import 'package:mrtdeg/Back%20End/Confirm.dart';
 import 'Gradientbutton.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class FlowScreen extends StatefulWidget {
   @override
@@ -21,10 +23,28 @@ class _FlowScreenState extends State<FlowScreen> {
   double quorumCircle = 0.0;
   int step = 0;
 
+  final List<List<String>> imageUrlsPerStep = [
+    [
+      'https://white-high-quokka-246.mypinata.cloud/ipfs/QmV8N4SoYvz9wnatC57uPckVuPoNsRNPrcAAeR2kCDEhax',
+      'https://white-high-quokka-246.mypinata.cloud/ipfs/QmW7c8xJP3Yxs5SoK8rwRgew3Gn6xbV3umtrPUB2xfgyoh',
+      'https://white-high-quokka-246.mypinata.cloud/ipfs/QmYYM5R5pqkNGjes8kTpUMRo7gfwDPZzV7DTCziX6vYzEg',
+      'https://white-high-quokka-246.mypinata.cloud/ipfs/QmZYwdYy83ajbPXcQ85Ey7gP93rrvHxYfGKDv6reiiwca6',
+    ],
+    [
+      'https://white-high-quokka-246.mypinata.cloud/ipfs/QmWjfzn3qE3VmhvFWxM99HnmrgpdnEivEg4vm4iD4MaLxv',
+      'https://white-high-quokka-246.mypinata.cloud/ipfs/QmSGEqUgPg3X8kThv9J2atRrDxhDEJHzWaq3HAJDQDZKqA',
+    ],
+    [
+      'https://white-high-quokka-246.mypinata.cloud/ipfs/QmQJ2uhGpz5zo1iVHzRXG9qFhzsYGAaRLZ4WmcFNKVf5ps',
+      'https://white-high-quokka-246.mypinata.cloud/ipfs/QmUysMzk5VA4brrwuTGic71VG9FvRPDofdGwnFnf71S2p6',
+    ],
+    // Add more lists of image URLs for other steps if needed
+  ];
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _updateQuorum());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initialUpdateQuorum());
   }
 
   Future<void> _mayorOrSayonara() async {
@@ -41,6 +61,26 @@ class _FlowScreenState extends State<FlowScreen> {
       } else {
         //_showErrorAlert(blockchain.translateError(error));
       }
+    }
+  }
+
+  Future<void> _initialUpdateQuorum() async {
+    _showAlert("Getting election status...");
+    await Future.delayed(Duration(milliseconds: 500));
+
+    try {
+      final value = await blockchain.queryView("get_status", [await blockchain.myAddr()]);
+      Navigator.of(context).pop();
+      setState(() {
+        quorumText = value[0] != value[1]
+            ? "${value[0] - value[1]} votes to quorum (${value[1]}/${value[0]})"
+            : "Quorum reached! (Total voters: ${value[0]})";
+        quorumCircle = value[1] / value[0];
+        step = _determineStep(value);
+      });
+    } catch (error) {
+      Navigator.of(context).pop();
+      //_showErrorAlert(blockchain.translateError(error));
     }
   }
 
@@ -111,8 +151,10 @@ class _FlowScreenState extends State<FlowScreen> {
   }
 
   void _navigateToWinnerPage() {
-    Navigator.of(context).pop();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Winner()));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Winner()),
+    );
   }
 
   List<Widget> _buildSteps() {
@@ -125,6 +167,7 @@ class _FlowScreenState extends State<FlowScreen> {
           title: 'Deposit some funds',
           description: 'You can deposit some funds to encourage people to vote for you',
           actions: [],
+          imageUrls: imageUrlsPerStep[0],
         ),
         _buildStep(
           title: 'Declare the winner',
@@ -137,58 +180,89 @@ class _FlowScreenState extends State<FlowScreen> {
               style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent, foregroundColor: Colors.black),
             ),
           ],
+          imageUrls: imageUrlsPerStep[1],
         ),
       ];
     } else {
       // General steps for voting process
       return [
         _buildStep(
-          title: 'Send your vote',
+          title: 'Cast your vote',
           description: 'Every vote you cast overwrites the previous one',
           actions: [
-            GradientButton(
-              text: "Vote",
-              onPressed: step == 0 ? () => Navigator.push(context, MaterialPageRoute(builder: (context) => Vote(isConfirming: false))) : null,
-              icon: Icon(Icons.how_to_vote, color: Colors.black),
-              width: 200,
-              height: 50,
+            Padding(
+              padding: const EdgeInsets.all(60.0),
+              child: GradientButton(
+                text: "Vote",
+                onPressed: step == 0 ? () => Navigator.push(context, MaterialPageRoute(builder: (context) => Vote(isConfirming: false))) : null,
+                icon: Icon(Icons.how_to_vote, color: Colors.black),
+                width: 200,
+                height: 50,
+              ),
             ),
           ],
+          imageUrls: imageUrlsPerStep[0],
         ),
         _buildStep(
           title: 'Confirm your vote',
           description: 'When the quorum is reached you can confirm your vote',
           actions: [
-            GradientButton(
-              text: "Confirm",
-              icon: Icon(Icons.check_circle_outline, color: Colors.black),
-              onPressed: step == 1 ? () => Navigator.push(context, MaterialPageRoute(builder: (context) => Confirm(isConfirming: true))) : null,
-              width: 200,
-              height: 50,
+            Padding(
+              padding: const EdgeInsets.all(60.0),
+              child: GradientButton(
+                text: "Confirm",
+                icon: Icon(Icons.check_circle_outline, color: Colors.black),
+                onPressed: step == 1 ? () => Navigator.push(context, MaterialPageRoute(builder: (context) => Confirm(isConfirming: true))) : null,
+                width: 200,
+                height: 50,
+              ),
             ),
           ],
+          imageUrls: imageUrlsPerStep[1],
         ),
         _buildStep(
           title: 'Declare the winner',
           description: 'Once everyone has confirmed their vote you can ask to declare the winner',
           actions: [
-            GradientButton(
-              text: "Ask to declare",
-              icon: Icon(Icons.gavel, color: Colors.black),
-              onPressed: step == 2 ? _mayorOrSayonara : null,
-              width: 200,
-              height: 50,
+            Padding(
+              padding: const EdgeInsets.all(60.0),
+              child: GradientButton(
+                text: "Ask to declare",
+                icon: Icon(Icons.gavel, color: Colors.black),
+                onPressed: step == 2 ? _mayorOrSayonara : null,
+                width: 200,
+                height: 50,
+              ),
             ),
           ],
+          imageUrls: imageUrlsPerStep[2],
         ),
       ];
     }
   }
 
-  Widget _buildStep({required String title, required String description, required List<Widget> actions}) {
+  Widget _buildStepIndicator() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        _buildSteps().length,
+            (index) => Container(
+          margin: EdgeInsets.symmetric(horizontal: 4.0),
+          width: step == index ? 12.0 : 8.0,
+          height: step == index ? 12.0 : 8.0,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: step == index ? Colors.blue : Colors.grey,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStep({required String title, required String description, required List<Widget> actions, required List<String> imageUrls}) {
     return Center(
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+        margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 16.0),
         padding: EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -204,10 +278,39 @@ class _FlowScreenState extends State<FlowScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 35)),
-            SizedBox(height: 100.0),
-            Text(description, style: TextStyle(fontSize: 18.0, color: Colors.black)),
-            SizedBox(height: 100.0),
+            Center(child: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 27))),
+            SizedBox(height: 8.0),
+            Text(description, style: GoogleFonts.poppins(color: Colors.grey, fontSize: 16)),
+            SizedBox(height: 20),
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 300,
+                enlargeCenterPage: true,
+                autoPlay: true,
+                aspectRatio: 16 / 9,
+                autoPlayCurve: Curves.fastOutSlowIn,
+                enableInfiniteScroll: true,
+                autoPlayAnimationDuration: Duration(milliseconds: 800),
+                viewportFraction: 1,
+              ),
+              items: imageUrls.map((url) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.symmetric(horizontal: 5.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                      ),
+                      child: Image.network(
+                        url,
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
             ...actions,
           ],
         ),
@@ -234,7 +337,7 @@ class _FlowScreenState extends State<FlowScreen> {
               backgroundColor: Colors.blue,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0), side: BorderSide(color: Colors.blue, width: 1.0)),
             ),
-            onPressed: _updateQuorum,
+            onPressed: () => _updateQuorum(),
             child: Text("Update"),
           ),
           title: Text(quorumText),
@@ -257,7 +360,7 @@ class _FlowScreenState extends State<FlowScreen> {
               title: Text('ElectDz', style: TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold)),
               elevation: 0,
               centerTitle: true,
-              actions: <Widget>[
+              actions: [
                 Padding(
                   padding: EdgeInsets.only(right: 20.0),
                   child: GestureDetector(
@@ -291,14 +394,9 @@ class _FlowScreenState extends State<FlowScreen> {
               children: _buildSteps(),
             ),
           ),
+          _buildStepIndicator(),
         ],
       ),
     );
   }
-
-  // @override
-  // void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  //   super.debugFillProperties(properties);
-  //   properties.add(DiagnosticsProperty<bool>('isMayor', step > 2));
-  // }
 }
