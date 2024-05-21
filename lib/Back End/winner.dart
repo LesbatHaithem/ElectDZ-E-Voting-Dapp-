@@ -20,7 +20,7 @@ class _WinnerState extends State<Winner> {
   Blockchain blockchain = Blockchain();
 
   late ConfettiController _controllerCenter;
-  List<WinnerModel> groups = [WinnerModel("Loading", BigInt.zero, "Loading", "")];
+  List<WinnerModel> groups = [WinnerModel("Loading", BigInt.zero, "Loading", "", 0)];
   bool? valid;
 
   @override
@@ -71,13 +71,18 @@ class _WinnerState extends State<Winner> {
         print("Results fetched successfully: $value");
         setState(() {
           groups = [];
+          BigInt totalVotes = BigInt.zero;
+          for (int i = 0; i < value[1].length; i++) {
+            totalVotes += BigInt.parse(value[1][i].toString());
+          }
           for (int i = 0; i < value[0].length; i++) {
             String groupAddr = value[0][i].toString();
             BigInt votes = BigInt.parse(value[1][i].toString());
             String groupName = value[2][i].toString();
             String pictureUrl = value[3][i].toString();
+            double percentage = (votes / totalVotes * 100).toDouble();
 
-            groups.add(WinnerModel(groupAddr, votes, groupName, pictureUrl));
+            groups.add(WinnerModel(groupAddr, votes, groupName, pictureUrl, percentage));
           }
           // Sort groups by votes in descending order
           groups.sort((a, b) => b.votes!.compareTo(a.votes!));
@@ -219,8 +224,17 @@ class _WinnerState extends State<Winner> {
                           children: <Widget>[
                             ListTile(
                               leading: Text("👑", style: TextStyle(fontSize: 25)),
-                              title: Text(groups[0].groupName!),
-                              subtitle: Text("Votes: ${groups[0].votes}"),
+                              title: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Text(
+                                  groups[0].groupName!,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              subtitle: Text("Votes: ${groups[0].votes} (${groups[0].percentage!.toStringAsFixed(2)}%)"),
                             ),
                             Container(
                               height: 350,
@@ -284,8 +298,17 @@ class _WinnerState extends State<Winner> {
                                 children: <Widget>[
                                   ListTile(
                                     leading: Text(leadingIcon, style: TextStyle(fontSize: 25)),
-                                    title: Text(group.groupName!),
-                                    subtitle: Text("Votes: ${group.votes}"),
+                                    title: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Text(
+                                        group.groupName!,
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    subtitle: Text("Votes: ${group.votes} (${group.percentage!.toStringAsFixed(2)}%)"),
                                   ),
                                   Container(
                                     height: 150,

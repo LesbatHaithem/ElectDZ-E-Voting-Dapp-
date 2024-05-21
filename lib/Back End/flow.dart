@@ -352,15 +352,18 @@ class _FlowScreenState extends State<FlowScreen> {
               items: imageUrls.map((url) {
                 return Builder(
                   builder: (BuildContext context) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      margin: EdgeInsets.symmetric(horizontal: 5.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                      ),
-                      child: Image.network(
-                        url,
-                        fit: BoxFit.cover,
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                        ),
+                        child: Image.network(
+                          url,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     );
                   },

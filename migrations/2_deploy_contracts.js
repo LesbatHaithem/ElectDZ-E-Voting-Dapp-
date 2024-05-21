@@ -1,7 +1,7 @@
 var Mayor = artifacts.require("Mayor");
 
 module.exports = function(deployer) {
-  const groupNames = ["FLN", "RND", "Group 3"];
+  const groupNames = [" Front de Libération Nationale", "RND", "Group 3"];
   const groupPictures = [
     "https://white-high-quokka-246.mypinata.cloud/ipfs/QmYxRmfiqaRDHYGxtnMN5zwE4c1M5PjwgRaWNYQbzdr7tq",
     "https://white-high-quokka-246.mypinata.cloud/ipfs/QmTT67kkk4F4KWbHojGH7zM7qTuv8tpWhAgeviyLG4UhW3",
