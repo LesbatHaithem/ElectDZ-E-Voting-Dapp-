@@ -608,21 +608,21 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
           dataText: formatMRZ(_mrtdData!.dg1!.mrz)));
     }
 
-     if (_mrtdData!.dg7 != null) {
-     list.add(_makeMrtdDataWidget(header: 'EF.DG7', collapsedText: '', dataText: _mrtdData!.dg7!.toBytes().hex()));
-       }
+     // if (_mrtdData!.dg7 != null) {
+     // list.add(_makeMrtdDataWidget(header: 'EF.DG7', collapsedText: '', dataText: _mrtdData!.dg7!.toBytes().hex()));
+     //   }
 
-     if (_mrtdData!.dg11 != null) {
-      list.add(_makeMrtdDataWidget(header: 'EF.DG11', collapsedText: '', dataText: _mrtdData!.dg11!.toBytes().hex()));
-      }
+    //  if (_mrtdData!.dg11 != null) {
+    //   list.add(_makeMrtdDataWidget(header: 'EF.DG11', collapsedText: '', dataText: _mrtdData!.dg11!.toBytes().hex()));
+    //   }
+    //
+    //   if (_mrtdData!.dg12 != null) {
+    //   list.add(_makeMrtdDataWidget(header: 'EF.DG12', collapsedText: '', dataText: _mrtdData!.dg12!.toBytes().hex()));
+    // }
 
-      if (_mrtdData!.dg12 != null) {
-      list.add(_makeMrtdDataWidget(header: 'EF.DG12', collapsedText: '', dataText: _mrtdData!.dg12!.toBytes().hex()));
-    }
-
-     if (_mrtdData!.dg15 != null) {
-      list.add(_makeMrtdDataWidget(header: 'EF.DG15', collapsedText: '', dataText: _mrtdData!.dg15!.toBytes().hex()));
-    }
+    //  if (_mrtdData!.dg15 != null) {
+    //   list.add(_makeMrtdDataWidget(header: 'EF.DG15', collapsedText: '', dataText: _mrtdData!.dg15!.toBytes().hex()));
+    // }
 
 
 
@@ -632,7 +632,8 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
 
 
   Scaffold _buildPage(BuildContext context) => Scaffold(
-    backgroundColor: Theme.of(context).colorScheme.background,  // Consistent with other pages
+    backgroundColor: Theme.of(context).colorScheme.background,
+    extendBodyBehindAppBar: true,// Consistent with other pages
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.background,  // Consistent with other pages
 
@@ -816,18 +817,23 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                     ),
                   ),
                 ),
-              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: const SizedBox(height: 10),
+              ),
               Text(_alertMessage,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                       fontSize: 15.0, fontWeight: FontWeight.bold)),
               if (jpegImage != null || jp2000Image != null)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Image",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 20),
+                Center(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Image",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
                   ),
                 ),
               if (jpegImage != null)

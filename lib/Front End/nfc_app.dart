@@ -79,13 +79,14 @@ class _NfcAppState extends State<NfcApp> {
   @override
   Widget build(BuildContext context) {
     const double edgePadding = 32.0;
-    const double betweenElementsPadding = 24.0;
+    const double betweenElementsPadding = 25.0;
 
     return Scaffold(
+      extendBodyBehindAppBar: true, // Extend the body behind the app bar
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.0),
         child: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Colors.transparent, // Make the app bar transparent
           title: Text(
             'ElectDZ',
             style: TextStyle(
@@ -94,102 +95,118 @@ class _NfcAppState extends State<NfcApp> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          elevation: 0,
+          elevation: 0, // Remove the app bar shadow
           centerTitle: true,
         ),
       ),
       backgroundColor: Theme.of(context).colorScheme.background,
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: edgePadding),
-        child: ListView(
-          children: [
-            SizedBox(height: 40),
-            Lottie.asset(
-              'assets/NFC.json',
-              width: 300,
-              height: 300,
-              fit: BoxFit.fill,
-            ),
-            SizedBox(height: 70),
-            Text(
-              'Scan your ID Card First',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onBackground,
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.3, // Adjust the opacity for fading effect
+              child: Image.asset(
+                'assets/background.png', // Your background image asset
+                fit: BoxFit.cover,
               ),
             ),
-            SizedBox(height: betweenElementsPadding),
-            Text(
-              'Click on Scan Document below to start scanning',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-            ),
-            SizedBox(height: edgePadding),
-            Showcase(
-              key: _scanButtonKey,
-              description: 'Tap here to scan your document',
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: _isAuthenticating ? null : _handlePress,
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 300),
-                      height: 60,
-                      width: 300,
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: _isPressed
-                            ? [
-                          BoxShadow(
-                            color: Colors.blueAccent.withOpacity(0.5),
-                            spreadRadius: 20,
-                            blurRadius: 30,
-                          )
-                        ]
-                            : [],
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 1,
-                        ),
-                      ),
-                      child: Center(
-                        child: _isAuthenticating
-                            ? CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
-                            : Text(
-                          'Scan Document',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+          ),
+          // Main Content
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: edgePadding).copyWith(top:20.0), // Add top padding to avoid content being obscured by the app bar
+            child: ListView(
+              children: [
+                SizedBox(height:10),
+                Lottie.asset(
+                  'assets/NFC.json',
+                  width: 400,
+                  height: 300,
+                  fit: BoxFit.fill,
+                ),
+                SizedBox(height: 50),
+                Text(
+                  'Scan your ID Card First',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ),
+                SizedBox(height: betweenElementsPadding),
+                Text(
+                  'Click on Scan Document below to start scanning',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ),
+                SizedBox(height: edgePadding),
+                Showcase(
+                  key: _scanButtonKey,
+                  description: 'Tap here to scan your document',
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: _isAuthenticating ? null : _handlePress,
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 300),
+                          height: 60,
+                          width: 300,
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: _isPressed
+                                ? [
+                              BoxShadow(
+                                color: Colors.blueAccent.withOpacity(0.5),
+                                spreadRadius: 20,
+                                blurRadius: 30,
+                              )
+                            ]
+                                : [],
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 1,
+                            ),
+                          ),
+                          child: Center(
+                            child: _isAuthenticating
+                                ? CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            )
+                                : Text(
+                              'Scan Document',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: edgePadding),
+                Center(
+                  child: Text(
+                    _authorized,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onBackground,
                     ),
                   ),
-                ],
-              ),
-            ),
-            SizedBox(height: edgePadding),
-            Center(
-              child: Text(
-                _authorized,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.onBackground,
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

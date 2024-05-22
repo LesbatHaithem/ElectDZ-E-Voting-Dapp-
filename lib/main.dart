@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:logging/logging.dart';
-import 'package:mrtdeg/Front End/finger_print.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mrtdeg/Front End/data_save.dart';
-import 'package:mrtdeg/Front End/MrtdDataStorage.dart';
-import 'package:mrtdeg/Front End/voter_profile.dart';
-import 'package:mrtdeg/Back End/splash.dart';
-import 'package:mrtdeg/Front End/nfc_app.dart';
+import 'package:mrtdeg/Front%20End/nfc_app.dart';
 
 void main() {
   if (kDebugMode) {
@@ -146,6 +141,17 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
       body: Stack(
         alignment: Alignment.center,
         children: [
+          // Background Image
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.3, // Adjust the opacity for fading effect
+              child: Image.asset(
+                'assets/background3.png', // Your background image asset
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          // Main Content
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32.0),
             child: Column(
@@ -201,7 +207,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                                 : [],
                             border: Border.all(
                               color: Colors.white,
-                              width:1,
+                              width: 1,
                             ),
                           ),
                           child: Center(
