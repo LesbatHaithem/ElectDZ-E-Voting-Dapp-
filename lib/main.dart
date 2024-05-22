@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:logging/logging.dart';
-import 'package:mrtdeg/Front End//finger_print.dart';
+import 'package:mrtdeg/Front End/finger_print.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mrtdeg/Front End//data_save.dart';
-import 'package:mrtdeg/Front End//MrtdDataStorage.dart';
-import 'package:mrtdeg/Front End//voter_profile.dart';
+import 'package:mrtdeg/Front End/data_save.dart';
+import 'package:mrtdeg/Front End/MrtdDataStorage.dart';
+import 'package:mrtdeg/Front End/voter_profile.dart';
 import 'package:mrtdeg/Back End/splash.dart';
-import 'package:mrtdeg/Back End/Gradientbutton.dart';
-
 
 void main() {
   if (kDebugMode) {
@@ -80,6 +78,8 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
   Animation<Offset>? _positionAnimation;
   GlobalKey _one = GlobalKey();
 
+  bool _isPressed = false;
+
   @override
   void initState() {
     super.initState();
@@ -113,6 +113,25 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
     }
   }
 
+  void _handlePress() {
+    setState(() {
+      _isPressed = true;
+    });
+
+    Future.delayed(Duration(milliseconds: 300), () {
+      setState(() {
+        _isPressed = false;
+      });
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FingerPrintPage(),
+        ),
+      );
+    });
+  }
+
   @override
   void dispose() {
     _controller?.dispose();
@@ -123,66 +142,87 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
-
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Spacer(),
-            FadeTransition(
-              opacity: _opacityAnimation!,
-              child: SlideTransition(
-                position: _positionAnimation!,
-                child: Text(
-                  "Welcome to Elect-DZ E-Voting dApp",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Spacer(),
+                FadeTransition(
+                  opacity: _opacityAnimation!,
+                  child: SlideTransition(
+                    position: _positionAnimation!,
+                    child: Text(
+                      "Welcome to Elect-DZ E-Voting dApp",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onBackground,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            SizedBox(height: 40),
-            Lottie.asset(
-              'assets/GetStarted.json',
-              width: 400,
-              height: 400,
-              fit: BoxFit.fill,
-            ),
-            SizedBox(height: 50),
-            Showcase(
-              key: _one,
-              description: 'Tap here to start',
-              child: Container(
-                width: 250,
-                child: GradientButton(
-                  text: "Get Started",
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SplashScreen()),
-                    );
-                  },
-                  width: 200,  // You can adjust this width to fit your UI design
-                  height: 50,  // Standard touch target height
-                  textStyle: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                SizedBox(height: 40),
+                Lottie.asset(
+                  'assets/GetStarted.json',
+                  width: 300,
+                  height: 400,
+                  fit: BoxFit.fill,
+                ),
+                SizedBox(height: 50),
+                Showcase(
+                  key: _one,
+                  description: 'Tap here to start',
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: _handlePress,
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 300),
+                          height: 70,
+                          width: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(50),
+                            boxShadow: _isPressed
+                                ? [
+                              BoxShadow(
+                                color: Colors.blueAccent.withOpacity(0.5),
+                                spreadRadius: 20,
+                                blurRadius: 30,
+                              )
+                            ]
+                                : [],
+                            border: Border.all(
+                              color: Colors.white,
+                              width:1,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Get Started',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  // If your GradientButton supports custom padding, add here. Otherwise, you'll need to adjust inside the class
-                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),  // Add padding directly if supported
-                  borderRadius: 30.0,  // Approximation of a StadiumBorder
-                )
-
-              ),
+                ),
+                Spacer(),
+              ],
             ),
-            Spacer(),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

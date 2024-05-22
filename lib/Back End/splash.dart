@@ -57,10 +57,10 @@ class _SplashScreenState extends State<SplashScreen> {
         });
       } else {
         setState(() {
-          Navigator.push(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => FlowScreen()),
-               // (Route<dynamic> route) => false,
+                (Route<dynamic> route) => false,
           );
         });
       }
@@ -118,7 +118,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+                      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 24.0),
                       child: DefaultTextStyle(
                         style: TextStyle(
                           fontSize: 40,
@@ -148,7 +148,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20.0),
+                SizedBox(height: 7.0),
                 Text(
                   "Welcome to the future of voting",
                   style: TextStyle(

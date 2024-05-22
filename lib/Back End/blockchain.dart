@@ -19,7 +19,7 @@ class Blockchain {
       contractAddr = prefs.getString("contract")
     });
     httpClient = new Client();
-    String apiUrl = "http://192.168.17.60:7545";
+    String apiUrl = "http://192.168.241.60:7545";
     ethClient = new Web3Client(apiUrl, httpClient);
     rootBundle.loadString("assets/abi.json").then((value) => {
       contract = loadContract(value),

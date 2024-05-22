@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'home_page.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
+import 'home_page.dart';
 
 class NfcApp extends StatefulWidget {
   const NfcApp({super.key});
@@ -14,6 +13,7 @@ class NfcApp extends StatefulWidget {
 
 class _NfcAppState extends State<NfcApp> {
   GlobalKey _scanButtonKey = GlobalKey();
+  bool _isPressed = false;
 
   @override
   void initState() {
@@ -34,6 +34,25 @@ class _NfcAppState extends State<NfcApp> {
     }
   }
 
+  void _handlePress() {
+    setState(() {
+      _isPressed = true;
+    });
+
+    Future.delayed(Duration(milliseconds: 300), () {
+      setState(() {
+        _isPressed = false;
+      });
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MrtdHomePage(),
+        ),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     const double edgePadding = 32.0;
@@ -44,8 +63,6 @@ class _NfcAppState extends State<NfcApp> {
         preferredSize: Size.fromHeight(60.0),
         child: AppBar(
           backgroundColor: Theme.of(context).colorScheme.background,
-          //automaticallyImplyLeading: false,  // This prevents the AppBar from showing a back button
-
           title: Text(
             'ElectDZ',
             style: TextStyle(
@@ -70,7 +87,7 @@ class _NfcAppState extends State<NfcApp> {
               height: 300,
               fit: BoxFit.fill,
             ),
-            SizedBox(height: 40),
+            SizedBox(height: 70),
             Text(
               'Scan your ID Card First',
               textAlign: TextAlign.center,
@@ -93,32 +110,45 @@ class _NfcAppState extends State<NfcApp> {
             Showcase(
               key: _scanButtonKey,
               description: 'Tap here to scan your document',
-              child: SizedBox(
-                width: 300,
-                height: 60,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MrtdHomePage(),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: _handlePress,
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 300),
+                      height: 60,
+                      width: 300,
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: _isPressed
+                            ? [
+                          BoxShadow(
+                            color: Colors.blueAccent.withOpacity(0.5),
+                            spreadRadius: 20,
+                            blurRadius: 30,
+                          )
+                        ]
+                            : [],
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 1,
+                        ),
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: StadiumBorder(),
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                  ),
-                  child: Text(
-                    'Scan Document',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      child: Center(
+                        child: Text(
+                          'Scan Document',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
             SizedBox(height: edgePadding),

@@ -1,15 +1,11 @@
 import 'dart:io';
-import 'package:lottie/lottie.dart';
-
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mrtdeg/Back End/splash.dart';
-import 'package:mrtdeg/Back End/utils.dart';
-import 'Gradientbutton.dart';
-
-
+import 'package:lottie/lottie.dart';
+import 'package:mrtdeg/Back%20End/splash.dart';
+import 'package:mrtdeg/Back%20End/utils.dart';
 
 class QRScreen extends StatefulWidget {
   @override
@@ -86,22 +82,21 @@ class _QRScreenState extends State<QRScreen> {
     return success;
   }
 
-  void _onQRViewCreated(QRViewController controller){
+  void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      if (canMove == false)
-        return;
+      if (!canMove) return;
       try {
         controller.pauseCamera();
-      } catch(error) {
+      } catch (error) {
         canMove = false;
       }
       process(scanData.code);
     });
   }
 
-  void _manualInput(){
-    TextEditingController text_addr = TextEditingController();
+  void _manualInput() {
+    TextEditingController textAddr = TextEditingController();
 
     Alert(
       context: context,
@@ -126,7 +121,7 @@ class _QRScreenState extends State<QRScreen> {
       content: Column(
         children: [
           TextField(
-            controller: text_addr,
+            controller: textAddr,
             decoration: InputDecoration(
               labelText: 'Address',
               labelStyle: TextStyle(color: Colors.black), // Enhanced label style
@@ -145,18 +140,16 @@ class _QRScreenState extends State<QRScreen> {
       buttons: [
         DialogButton(
           onPressed: () {
-           canMove==false;  // Adjusted for proper Dart syntax
-              Navigator.pop(context);
-              process(text_addr.text);
-
+            Navigator.pop(context);
+            process(textAddr.text);
           },
           child: Text(
-              "Connect",
-              style: TextStyle(color: Colors.white, fontSize: 20)
+            "Connect",
+            style: TextStyle(color: Colors.white, fontSize: 20),
           ),
           color: Colors.blue, // Enhanced button color to match your theme
           radius: BorderRadius.circular(20.0),
-        )
+        ),
       ],
     ).show();
   }
@@ -170,61 +163,48 @@ class _QRScreenState extends State<QRScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(  // Added SingleChildScrollView
-        child: Container(
-          height: MediaQuery.of(context).size.height,  // Ensure it fills the screen
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [Colors.white, Colors.blue],
+      body: Stack(
+        children: [
+          QRView(
+            key: qrKey,
+            onQRViewCreated: _onQRViewCreated,
+          ),
+          Positioned(
+            top: 30,
+            left: 30,
+            child: IconButton(
+              icon: Icon(Icons.input, size: 30, color: Colors.white),
+              onPressed: _manualInput,
             ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,  // Allows the column to size itself to its children
-            children: <Widget>[
-              Expanded(
-                flex: 5,
-                child: QRView(
-                  key: qrKey,
-                  onQRViewCreated: _onQRViewCreated,
-                ),
-
+          Center(
+            child: Opacity(
+              opacity: 0.6, // Adjusted opacity
+              child: Lottie.asset(
+                'assets/QR_Code.json',
+                width: 500, // Increased size
+                height: 400, // Increased size
+                fit: BoxFit.cover,
+                animate: true,
               ),
-              Expanded(
-                flex: 1,
-                child: Center(
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Text('         Scan QR Code',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Theme.of(context).colorScheme.onBackground,
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,),
-                            ),
-                          ),
-                          Lottie.asset('assets/QR_Code.json', width: 80),
-                        ],
-                      ),
-                      GradientButton(
-                        text: "Enter Manually",
-                        onPressed: _manualInput,  // The function to execute when the button is pressed
-                        width: 200,  // Adjust the width based on your UI design needs, or use MediaQuery for full width
-                        height: 50,  // Standard touch target height
-                        // Assuming your GradientButton's default gradient and other styles are set within the button class
-                      )
-                      ,
-                    ],
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          Positioned(
+            bottom: 30,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                'Scan QR Code',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

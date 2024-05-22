@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:mrtdeg/Front End//nfc_app.dart';
+import 'package:mrtdeg/Front End/nfc_app.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,6 +17,8 @@ class _FingerPrintPageState extends State<FingerPrintPage> {
   bool _isAuthenticating = false;
   final GlobalKey _buttonKey = GlobalKey();
 
+  bool _isPressed = false;
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +31,7 @@ class _FingerPrintPageState extends State<FingerPrintPage> {
       setState(() {
         _isAuthenticating = true;
         _authorized = 'Authenticating...';
+        _isPressed = true;
       });
       authenticated = await auth.authenticate(
         localizedReason: 'Please place your thumb on the fingerprint sensor',
@@ -51,6 +54,7 @@ class _FingerPrintPageState extends State<FingerPrintPage> {
     } finally {
       setState(() {
         _isAuthenticating = false;
+        _isPressed = false;
       });
     }
   }
@@ -139,29 +143,49 @@ class _FingerPrintPageState extends State<FingerPrintPage> {
                     key: _buttonKey,
                     title: 'Authenticate Button',
                     description: 'Tap here to authenticate your fingerprint.',
-                    child: SizedBox(
-                      width: 300,
-                      height: 60,
-                      child: ElevatedButton(
-                        onPressed: _isAuthenticating ? null : _authenticate,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: StadiumBorder(),
-                          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                        ),
-                        child: _isAuthenticating
-                            ? CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
-                            : Text(
-                          'Authenticate',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: _isAuthenticating ? null : _authenticate,
+                          child: AnimatedContainer(
+                            duration: Duration(milliseconds: 300),
+                            height: 60,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: _isPressed
+                                  ? [
+                                BoxShadow(
+                                  color: Colors.blueAccent.withOpacity(0.5),
+                                  spreadRadius: 20,
+                                  blurRadius: 30,
+                                )
+                              ]
+                                  : [],
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 1,
+                              ),
+                            ),
+                            child: Center(
+                              child: _isAuthenticating
+                                  ? CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              )
+                                  : Text(
+                                'Authenticate',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ],
