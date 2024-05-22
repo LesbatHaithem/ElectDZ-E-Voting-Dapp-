@@ -3,6 +3,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:mrtdeg/Front End/nfc_app.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lottie/lottie.dart';
 
 class FingerPrintPage extends StatefulWidget {
   const FingerPrintPage({Key? key}) : super(key: key);
@@ -97,7 +98,7 @@ class _FingerPrintPageState extends State<FingerPrintPage> {
           children: [
             SizedBox(height: 40),
             Text(
-              'Fingerprint Authentication',
+              'Secure Your Vote with Fingerprint Authentication',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 28,
@@ -107,7 +108,7 @@ class _FingerPrintPageState extends State<FingerPrintPage> {
             ),
             SizedBox(height: 40),
             Text(
-              'You\'re almost there.',
+              'To ensure the integrity of the voting process, we need to verify your identity.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -116,7 +117,7 @@ class _FingerPrintPageState extends State<FingerPrintPage> {
             ),
             SizedBox(height: betweenElementsPadding),
             Text(
-              'Press the button to finalize authentication and access the account.',
+              'Please authenticate using your fingerprint to continue.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -125,11 +126,11 @@ class _FingerPrintPageState extends State<FingerPrintPage> {
             ),
             SizedBox(height: edgePadding),
             Center(
-              child: Image.asset(
-                'assets/fingerprint.png',
-                color: Colors.black,
-                height: 100,
+              child: Lottie.asset(
+                'assets/finger.json',
                 width: 100,
+                height: 100,
+                fit: BoxFit.fill,
               ),
             ),
             SizedBox(height: edgePadding * 2),
@@ -142,7 +143,7 @@ class _FingerPrintPageState extends State<FingerPrintPage> {
                   Showcase(
                     key: _buttonKey,
                     title: 'Authenticate Button',
-                    description: 'Tap here to authenticate your fingerprint.',
+                    description: 'Tap here to authenticate using your fingerprint.',
                     child: Stack(
                       alignment: Alignment.center,
                       children: [

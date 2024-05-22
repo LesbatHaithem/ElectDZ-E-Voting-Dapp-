@@ -6,7 +6,6 @@ import 'package:mrtdeg/Back%20End/vote.dart';
 import 'package:mrtdeg/Back%20End/splash.dart';
 import 'package:mrtdeg/Back%20End/winner.dart';
 import 'package:mrtdeg/Back%20End/Confirm.dart';
-import 'Gradientbutton.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,6 +24,9 @@ class _FlowScreenState extends State<FlowScreen> {
   double quorumCircle = 0.0;
   int step = 0;
   bool showOverlay = false;
+  bool _isPressedVote = false;
+  bool _isPressedConfirm = false;
+  bool _isPressedDeclare = false;
 
   final List<List<String>> imageUrlsPerStep = [
     [
@@ -190,11 +192,53 @@ class _FlowScreenState extends State<FlowScreen> {
           title: 'Declare the winner',
           description: 'Once everyone has confirmed their vote you can ask to declare the winner',
           actions: [
-            ElevatedButton.icon(
-              icon: Icon(Icons.gavel),
-              label: Text("Ask to declare"),
-              onPressed: step == 4 ? _mayorOrSayonara : null,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent, foregroundColor: Colors.black),
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isPressedDeclare = true;
+                  });
+
+                  Future.delayed(Duration(milliseconds: 300), () {
+                    setState(() {
+                      _isPressedDeclare = false;
+                    });
+                    if (step == 4) _mayorOrSayonara();
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 300),
+                  height: 50,
+                  width: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.greenAccent,
+                    borderRadius: BorderRadius.circular(50),
+                    boxShadow: _isPressedDeclare
+                        ? [
+                      BoxShadow(
+                        color: Colors.greenAccent.withOpacity(0.5),
+                        spreadRadius: 20,
+                        blurRadius: 30,
+                      )
+                    ]
+                        : [],
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 1,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Ask to declare",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
           imageUrls: imageUrlsPerStep[1],
@@ -207,14 +251,61 @@ class _FlowScreenState extends State<FlowScreen> {
           title: 'Cast your vote',
           description: 'Every vote you cast overwrites the previous one',
           actions: [
-            Padding(
-              padding: const EdgeInsets.all(60.0),
-              child: GradientButton(
-                text: "Vote",
-                onPressed: step == 0 ? () => Navigator.push(context, MaterialPageRoute(builder: (context) => Vote(isConfirming: false))) : null,
-                icon: Icon(Icons.how_to_vote, color: Colors.black),
-                width: 200,
-                height: 50,
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isPressedVote = true;
+                  });
+
+                  Future.delayed(Duration(milliseconds: 300), () {
+                    setState(() {
+                      _isPressedVote = false;
+                    });
+                    if (step == 0)
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Vote(isConfirming: false),
+                        ),
+                      );
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(50.0),
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    height: 50,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(50),
+                      boxShadow: _isPressedVote
+                          ? [
+                        BoxShadow(
+                          color: Colors.blueAccent.withOpacity(0.5),
+                          spreadRadius: 20,
+                          blurRadius: 30,
+                        )
+                      ]
+                          : [],
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 1,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Vote",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -224,14 +315,61 @@ class _FlowScreenState extends State<FlowScreen> {
           title: 'Confirm your vote',
           description: 'When the quorum is reached you can confirm your vote',
           actions: [
-            Padding(
-              padding: const EdgeInsets.all(60.0),
-              child: GradientButton(
-                text: "Confirm",
-                icon: Icon(Icons.check_circle_outline, color: Colors.black),
-                onPressed: step == 1 ? () => Navigator.push(context, MaterialPageRoute(builder: (context) => Confirm(isConfirming: true))) : null,
-                width: 200,
-                height: 50,
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isPressedConfirm = true;
+                  });
+
+                  Future.delayed(Duration(milliseconds: 300), () {
+                    setState(() {
+                      _isPressedConfirm = false;
+                    });
+                    if (step == 1)
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Confirm(isConfirming: true),
+                        ),
+                      );
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(50.0),
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    height: 50,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(50),
+                      boxShadow: _isPressedConfirm
+                          ? [
+                        BoxShadow(
+                          color: Colors.blueAccent.withOpacity(0.5),
+                          spreadRadius: 20,
+                          blurRadius: 30,
+                        )
+                      ]
+                          : [],
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 1,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Confirm",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -241,14 +379,55 @@ class _FlowScreenState extends State<FlowScreen> {
           title: 'Declare the winner',
           description: 'Once everyone has confirmed their vote you can ask to declare the winner',
           actions: [
-            Padding(
-              padding: const EdgeInsets.all(60.0),
-              child: GradientButton(
-                text: "Ask to declare",
-                icon: Icon(Icons.gavel, color: Colors.black),
-                onPressed: step == 2 ? _mayorOrSayonara : null,
-                width: 200,
-                height: 50,
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isPressedDeclare = true;
+                  });
+
+                  Future.delayed(Duration(milliseconds: 300), () {
+                    setState(() {
+                      _isPressedDeclare = false;
+                    });
+                    if (step == 2) _mayorOrSayonara();
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(50.0),
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    height: 50,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      color: Colors.greenAccent,
+                      borderRadius: BorderRadius.circular(50),
+                      boxShadow: _isPressedDeclare
+                          ? [
+                        BoxShadow(
+                          color: Colors.greenAccent.withOpacity(0.5),
+                          spreadRadius: 20,
+                          blurRadius: 30,
+                        )
+                      ]
+                          : [],
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 1,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Ask to declare",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

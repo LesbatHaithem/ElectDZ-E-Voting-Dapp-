@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
@@ -12,8 +13,11 @@ class NfcApp extends StatefulWidget {
 }
 
 class _NfcAppState extends State<NfcApp> {
+  final LocalAuthentication auth = LocalAuthentication();
   GlobalKey _scanButtonKey = GlobalKey();
   bool _isPressed = false;
+  bool _isAuthenticating = false;
+  String _authorized = 'Please authenticate';
 
   @override
   void initState() {
@@ -34,23 +38,42 @@ class _NfcAppState extends State<NfcApp> {
     }
   }
 
-  void _handlePress() {
-    setState(() {
-      _isPressed = true;
-    });
-
-    Future.delayed(Duration(milliseconds: 300), () {
+  Future<void> _authenticate() async {
+    bool authenticated = false;
+    try {
       setState(() {
+        _isAuthenticating = true;
+        _authorized = 'Authenticating...';
+        _isPressed = true;
+      });
+      authenticated = await auth.authenticate(
+        localizedReason: 'Please place your thumb on the fingerprint sensor',
+      );
+      setState(() {
+        _authorized = authenticated ? 'Success' : 'Try again';
+      });
+      if (authenticated) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MrtdHomePage(),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _authorized = 'Authentication Error: $e';
+      });
+    } finally {
+      setState(() {
+        _isAuthenticating = false;
         _isPressed = false;
       });
+    }
+  }
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MrtdHomePage(),
-        ),
-      );
-    });
+  void _handlePress() {
+    _authenticate();
   }
 
   @override
@@ -114,7 +137,7 @@ class _NfcAppState extends State<NfcApp> {
                 alignment: Alignment.center,
                 children: [
                   GestureDetector(
-                    onTap: _handlePress,
+                    onTap: _isAuthenticating ? null : _handlePress,
                     child: AnimatedContainer(
                       duration: Duration(milliseconds: 300),
                       height: 60,
@@ -137,7 +160,11 @@ class _NfcAppState extends State<NfcApp> {
                         ),
                       ),
                       child: Center(
-                        child: Text(
+                        child: _isAuthenticating
+                            ? CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
+                            : Text(
                           'Scan Document',
                           style: TextStyle(
                             fontSize: 18,
@@ -152,6 +179,15 @@ class _NfcAppState extends State<NfcApp> {
               ),
             ),
             SizedBox(height: edgePadding),
+            Center(
+              child: Text(
+                _authorized,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.onBackground,
+                ),
+              ),
+            ),
           ],
         ),
       ),

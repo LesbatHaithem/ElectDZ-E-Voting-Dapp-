@@ -205,6 +205,8 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
   GlobalKey _showcaseKey = GlobalKey();
   Timer? _showcaseTimer;
   bool _showFAB = false;  // State to control visibility of the FAB
+  bool _isPressed = false;
+  bool _isFABPressed = false;
 
 
 
@@ -683,22 +685,50 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                 Column(
                   children: [
                     Center(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: StadiumBorder(),
-                          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                        ),
-                        onPressed: () {
-                          _initPlatformState();
-                          _readMRTD();
-                          _showUserInstructions = false; // Hide user instructions
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isPressed = true;
+                          });
+                          Future.delayed(Duration(milliseconds: 300), () {
+                            setState(() {
+                              _isPressed = false;
+                            });
+                            _initPlatformState();
+                            _readMRTD();
+                            _showUserInstructions = false; // Hide user instructions
+                          });
                         },
-                        child: Text('Next',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 300),
+                          height: 70,
+                          width: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(50),
+                            boxShadow: _isPressed
+                                ? [
+                              BoxShadow(
+                                color: Colors.blueAccent.withOpacity(0.5),
+                                spreadRadius: 20,
+                                blurRadius: 30,
+                              )
+                            ]
+                                : [],
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 1,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Next',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -718,46 +748,73 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                 ),
               if (!_isNfcAvailable && !_isReading)
                 Center(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: StadiumBorder(),
-                      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                    ),
-                    onPressed: () {
+                  child: GestureDetector(
+                    onTap: () {
                       setState(() {
-                        _isNfcAvailable = false; // Start checking NFC
+                        _isPressed = true;
                       });
-                      _initPlatformState().then((_) {
+                      Future.delayed(Duration(milliseconds: 300), () {
                         setState(() {
-                          _isNfcAvailable = true; // NFC is available after checking
-                          _showUserInstructions = true; // Show user instructions if needed
+                          _isPressed = false;
                         });
-                      }).catchError((error) {
                         setState(() {
-                          _isNfcAvailable = true; // Reset on error, assuming NFC is not being checked
+                          _isNfcAvailable = false; // Start checking NFC
+                        });
+                        _initPlatformState().then((_) {
+                          setState(() {
+                            _isNfcAvailable = true; // NFC is available after checking
+                            _showUserInstructions = true; // Show user instructions if needed
+                          });
+                        }).catchError((error) {
+                          setState(() {
+                            _isNfcAvailable = true; // Reset on error, assuming NFC is not being checked
+                          });
                         });
                       });
                     },
-                    child: !_isNfcAvailable
-                        ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 300),
+                      height: 70,
+                      width: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(50),
+                        boxShadow: _isPressed
+                            ? [
+                          BoxShadow(
+                            color: Colors.blueAccent.withOpacity(0.5),
+                            spreadRadius: 20,
+                            blurRadius: 30,
+                          )
+                        ]
+                            : [],
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 1,
+                        ),
                       ),
-                    )
-                        : Text(
-                      'Checking NFC State',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      child: Center(
+                        child: !_isNfcAvailable
+                            ? SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                            : Text(
+                          'Checking NFC State',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                  )
-
+                  ),
                 ),
               const SizedBox(height: 10),
               Text(_alertMessage,
@@ -783,8 +840,7 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                       borderRadius: BorderRadius.circular(10),
                       child: Image.memory(
                         jpegImage!,
-                        errorBuilder: (context, error, stackTrace) =>
-                            SizedBox(),
+                        errorBuilder: (context, error, stackTrace) => SizedBox(),
                       ),
                     ),
                   ],
@@ -800,8 +856,7 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                         borderRadius: BorderRadius.circular(10),
                         child: Image.memory(
                           jp2000Image!,
-                          errorBuilder: (context, error, stackTrace) =>
-                              SizedBox(),
+                          errorBuilder: (context, error, stackTrace) => SizedBox(),
                         )),
                   ],
                 ),
@@ -822,8 +877,7 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                         borderRadius: BorderRadius.circular(10),
                         child: Image.memory(
                           rawHandSignatureData!,
-                          errorBuilder: (context, error, stackTrace) =>
-                              SizedBox(),
+                          errorBuilder: (context, error, stackTrace) => SizedBox(),
                         )),
                   ],
                 ),
@@ -853,36 +907,76 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
       key: _showcaseKey,
       description: 'Tap here to create profile',
       textColor: Colors.black,
-      child: FloatingActionButton.extended(
-        onPressed: () async {
-          if (_mrtdData != null) {
-            // Save the sign-in status when the button is pressed
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.setBool('isSignedIn', true);
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _isFABPressed = true;
+          });
+          Future.delayed(Duration(milliseconds: 300), () async {
+            setState(() {
+              _isFABPressed = false;
+            });
+            if (_mrtdData != null) {
+              // Save the sign-in status when the button is pressed
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('isSignedIn', true);
 
-            // Navigate to the VoterProfilePage
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => VoterProfilePage(
-                  mrtdData: _mrtdData!,
-                  rawHandSignatureData: rawHandSignatureData, // Ensure this is not null
+              // Navigate to the VoterProfilePage
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => VoterProfilePage(
+                    mrtdData: _mrtdData!,
+                    rawHandSignatureData: rawHandSignatureData, // Ensure this is not null
+                  ),
                 ),
-              ),
-            );
-          }
+              );
+            }
+          });
         },
-        label: Text('Confirm',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          height: 60,
+          width: 130,
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: _isFABPressed
+                ? [
+              BoxShadow(
+                color: Colors.blueAccent.withOpacity(0.5),
+                spreadRadius: 20,
+                blurRadius: 30,
+              )
+            ]
+                : [],
+            border: Border.all(
+              color: Colors.white,
+              width: 1,
+            ),
+          ),
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.check, color: Colors.black),
+                SizedBox(width: 1),
+                Text(
+                  'Confirm',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        icon: Icon(Icons.check, color: Colors.black),
-        backgroundColor: Colors.blue,
       ),
     ) : null,
+
+
   );
 
   void _openNFCSettings() async {

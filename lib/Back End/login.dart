@@ -3,8 +3,6 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mrtdeg/Back End/splash.dart';
 import 'package:mrtdeg/Back End/utils.dart';
-import 'Gradientbutton.dart';
-
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,17 +10,17 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   TextStyle style = TextStyle(fontSize: 20.0, color: Colors.white);
   final keyController = TextEditingController();
+  bool _isPressed = false;
 
-  Future<void> _login() async{
+  Future<void> _login() async {
     String key = keyController.text;
-    if (key.length  != 64){
+    if (key.length != 64) {
       Alert(
-          context: context,
-          type: AlertType.error,
-          title:"Error in the Private key format",
+        context: context,
+        type: AlertType.error,
+        title: "Error in the Private key format",
         style: AlertStyle(
           animationType: AnimationType.fromTop,
           isCloseButton: false,
@@ -32,12 +30,12 @@ class _LoginScreenState extends State<LoginScreen> {
           alertBorder: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
             side: BorderSide(
-              color: Colors.white, // Added a red accent border to match your theme
+              color: Colors.white,
               width: 2,
             ),
           ),
           titleStyle: TextStyle(
-            color: Colors.black, // Making sure the title matches the theme
+            color: Colors.black,
           ),
         ),
       ).show();
@@ -45,21 +43,17 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     SharedPreferences sp = await SharedPreferences.getInstance();
     sp.setString("key", key);
-    //move to home
     setState(() {
       Navigator.pushAndRemoveUntil(
         context,
-        SlideRightRoute(
-            page: SplashScreen()
-        ),
-          (Route<dynamic> route) => false,
+        SlideRightRoute(page: SplashScreen()),
+            (Route<dynamic> route) => false,
       );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
     final passwordField = TextField(
       controller: keyController,
       obscureText: true,
@@ -68,37 +62,71 @@ class _LoginScreenState extends State<LoginScreen> {
         contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         hintText: "Wallet Private Key",
         hintStyle: style,
-        border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(32.0)
-
-          )
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
       ),
     );
-    final loginButton = Material(
-      elevation: 5.0,
-      borderRadius: BorderRadius.circular(30.0),
-      color: Colors.blue,
-      child: GradientButton(
-        text: "Login",
-        onPressed: _login,  // Function to execute when the button is pressed
-        width: MediaQuery.of(context).size.width,  // Set the width to fill the screen width
-        height: 50,  // Adapt the height if needed, depending on your GradientButton's default or style settings
-      )
 
+    final loginButton = Center(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _isPressed = true;
+          });
+
+          Future.delayed(Duration(milliseconds: 300), () {
+            setState(() {
+              _isPressed = false;
+            });
+            _login();
+          });
+        },
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          height: 60,
+          width: MediaQuery.of(context).size.width * 0.8,
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: _isPressed
+                ? [
+              BoxShadow(
+                color: Colors.greenAccent.withOpacity(0.5),
+                spreadRadius: 20,
+                blurRadius: 30,
+              )
+            ]
+                : [],
+            border: Border.all(
+              color: Colors.white,
+              width: 1,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              'Login',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
 
     return Scaffold(
       body: Center(
         child: Container(
           decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [
-                   Colors.blue,
-                   Colors.white,
-                ],
-              )
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: [
+                Colors.blue,
+                Colors.white,
+              ],
+            ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(36.0),
@@ -108,9 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: <Widget>[
                 SizedBox(
                   height: 155.0,
-                  child: Image.asset(
-                    'assets/wallet1.png'
-                  ),
+                  child: Image.asset('assets/wallet1.png'),
                 ),
                 SizedBox(height: 25.0),
                 passwordField,

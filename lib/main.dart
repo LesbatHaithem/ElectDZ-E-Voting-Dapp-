@@ -10,6 +10,7 @@ import 'package:mrtdeg/Front End/data_save.dart';
 import 'package:mrtdeg/Front End/MrtdDataStorage.dart';
 import 'package:mrtdeg/Front End/voter_profile.dart';
 import 'package:mrtdeg/Back End/splash.dart';
+import 'package:mrtdeg/Front End/nfc_app.dart';
 
 void main() {
   if (kDebugMode) {
@@ -126,7 +127,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => FingerPrintPage(),
+          builder: (context) => NfcApp(),
         ),
       );
     });
@@ -169,7 +170,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                 SizedBox(height: 40),
                 Lottie.asset(
                   'assets/GetStarted.json',
-                  width: 300,
+                  width: 430,
                   height: 400,
                   fit: BoxFit.fill,
                 ),

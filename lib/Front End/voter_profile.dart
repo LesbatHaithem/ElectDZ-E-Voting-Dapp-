@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:typed_data';
 import 'home_page.dart';
-import 'package:mrtdeg/Front End//Container.dart';
+import 'package:mrtdeg/Front End/Container.dart';
 import 'data_save.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mrtdeg/Back End/splash.dart';
@@ -10,19 +10,18 @@ import 'package:mrtdeg/Back End/splash.dart';
 class VoterProfilePage extends StatefulWidget {
   final MrtdData mrtdData;
   final Uint8List? rawHandSignatureData;
-  final bool isVotingStarted; // Add this line
+  final bool isVotingStarted;
 
-
-  VoterProfilePage({required this.mrtdData, this.rawHandSignatureData,
-  this.isVotingStarted = false, // Add this line
-  });
+  VoterProfilePage({required this.mrtdData, this.rawHandSignatureData, this.isVotingStarted = false});
 
   @override
   _VoterProfilePageState createState() => _VoterProfilePageState();
 }
 
 class _VoterProfilePageState extends State<VoterProfilePage> {
-  bool _isVisible = true; // State to manage visibility of profile details
+  bool _isVisible = true;
+  bool _isSavePressed = false;
+  bool _isStartPressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -178,36 +177,66 @@ class _VoterProfilePageState extends State<VoterProfilePage> {
   }
 
   Widget _startVotingButton() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
-          ),
-          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-        ),
-        onPressed: () async {
-          if (!widget.isVotingStarted) {
-            await _saveProfile();
-          }
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SplashScreen(),
-            ),
-          );
+    return Center(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            widget.isVotingStarted ? _isStartPressed = true : _isSavePressed = true;
+          });
+
+          Future.delayed(Duration(milliseconds: 300), () async {
+            setState(() {
+              widget.isVotingStarted ? _isStartPressed = false : _isSavePressed = false;
+            });
+
+            if (!widget.isVotingStarted) {
+              await _saveProfile();
+            }
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SplashScreen(),
+              ),
+            );
+          });
         },
-        child: Text(
-          widget.isVotingStarted ? 'Start Voting' : 'Save & Start Voting',
-          style: TextStyle(fontSize: 18),
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          height: 60,
+          width: 240,
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: (widget.isVotingStarted ? _isStartPressed : _isSavePressed)
+                ? [
+              BoxShadow(
+                color: Colors.blueAccent.withOpacity(0.5),
+                spreadRadius: 20,
+                blurRadius: 30,
+              )
+            ]
+                : [],
+            border: Border.all(
+              color: Colors.white,
+              width: 1,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              widget.isVotingStarted ? 'Start Voting' : 'Save & Start Voting',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
+
   Future<void> _saveProfile() async {
     var profileData = {
       'documentNumber': widget.mrtdData.dg1!.mrz.documentNumber,
@@ -222,10 +251,7 @@ class _VoterProfilePageState extends State<VoterProfilePage> {
 
     final dbHelper = DatabaseHelper.instance;
     int id = await dbHelper.insertProfile(profileData);
-    // Update shared preferences after saving the profile
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('profileSaved', true);
-
-    //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Profile saved with ID: $id')));
   }
 }
