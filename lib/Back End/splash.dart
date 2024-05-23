@@ -70,100 +70,120 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [Colors.blue.shade800, Colors.blue.shade200],
+      extendBodyBehindAppBar: true, // Extend the body behind the app bar
+      appBar: AppBar(
+        backgroundColor: Colors.transparent, // Make the app bar transparent
+        elevation: 0, // Remove the app bar shadow
+      ),
+      body: Stack(
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.3, // Adjust the opacity for fading effect
+              child: Image.asset(
+                'assets/voterpage.png', // Your background image asset
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-          child: Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  height: 400.0,
-                  child: SvgPicture.asset(
-                    'assets/logo.svg', // Replace with your logo image path
-                    width: 400,
-                    height: 400,
-                  ),
-                ),
-                SizedBox(height: 5.0),
-                SizedBox(
-                  height: 80.0,
-                  child: Lottie.asset('assets/splashb.json', width: 300),
-                ),
-                SizedBox(height: 1.0),
-                Container(
-                  alignment: Alignment.center,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Colors.white, Colors.cyanAccent],
+          Center(
+            child: Container(
+              // decoration: BoxDecoration(
+              //   gradient: LinearGradient(
+              //     begin: Alignment.bottomCenter,
+              //     end: Alignment.topCenter,
+              //     colors: [Colors.blue.shade800, Colors.blue.shade200],
+              //   ),
+              // ),
+              child: Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      height: 400.0,
+                      child: SvgPicture.asset(
+                        'assets/logo.svg', // Replace with your logo image path
+                        width: 400,
+                        height: 400,
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.lightBlueAccent.withOpacity(0.5),
-                          spreadRadius: 5,
-                          blurRadius: 30,
-                          offset: Offset(0, 10),
-                        ),
-                      ],
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 24.0),
-                      child: DefaultTextStyle(
-                        style: TextStyle(
-                          fontSize: 40,
-                          fontFamily: 'Times New Roman',
-                          color: Colors.black87,
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic,
-                          letterSpacing: 2.0,
-                          shadows: [
-                            Shadow(
-                              color: Colors.lightBlueAccent,
-                              blurRadius: 10,
-                              offset: Offset(2, 2),
+                    SizedBox(height: 5.0),
+                    SizedBox(
+                      height: 80.0,
+                      child: Lottie.asset('assets/splashb.json', width: 300),
+                    ),
+                    SizedBox(height: 1.0),
+                    Container(
+                      alignment: Alignment.center,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [Colors.white, Colors.cyanAccent],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.lightBlueAccent.withOpacity(0.5),
+                              spreadRadius: 5,
+                              blurRadius: 30,
+                              offset: Offset(0, 10),
                             ),
                           ],
                         ),
-                        child: AnimatedTextKit(
-                          animatedTexts: [
-                            WavyAnimatedText(
-                              "Electdz",
-                              speed: Duration(milliseconds: 300),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 24.0),
+                          child: DefaultTextStyle(
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontFamily: 'Times New Roman',
+                              color: Colors.black87,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                              letterSpacing: 2.0,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.lightBlueAccent,
+                                  blurRadius: 10,
+                                  offset: Offset(2, 2),
+                                ),
+                              ],
                             ),
-                          ],
-                          isRepeatingAnimation: false,
+                            child: AnimatedTextKit(
+                              animatedTexts: [
+                                WavyAnimatedText(
+                                  "Electdz",
+                                  speed: Duration(milliseconds: 300),
+                                ),
+                              ],
+                              isRepeatingAnimation: false,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    SizedBox(height: 7.0),
+                    Text(
+                      "Welcome to the future of voting",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 7.0),
-                Text(
-                  "Welcome to the future of voting",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontStyle: FontStyle.italic,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
+
 }
 
 class _NoBlockChainScreenState extends State<NoBlockChainScreen> with SingleTickerProviderStateMixin {

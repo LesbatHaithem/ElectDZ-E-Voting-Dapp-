@@ -26,8 +26,10 @@ class _VoterProfilePageState extends State<VoterProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true, // Extend the body behind the app bar
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Colors.transparent, // Make the app bar transparent
+        elevation: 0, // Remove the app bar shadow
         centerTitle: true,
         title: Text(
           '${widget.mrtdData.dg1?.mrz.firstName} ${widget.mrtdData.dg1?.mrz.lastName}',
@@ -57,17 +59,32 @@ class _VoterProfilePageState extends State<VoterProfilePage> {
           )
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 20),
-            _isVisible ? _profileDetails() : Container(),
-            _isVisible ? _signatureSection() : Container(),
-            SizedBox(height: 40),
-            _startVotingButton(),
-            SizedBox(height: 20),
-          ],
-        ),
+      body: Stack(
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.3, // Adjust the opacity for fading effect
+              child: Image.asset(
+                'assets/voterpage.png', // Your background image asset
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 80), // Add padding to avoid content being obscured by the app bar
+                SizedBox(height: 10),
+                _isVisible ? _profileDetails() : Container(),
+                _isVisible ? _signatureSection() : Container(),
+                SizedBox(height: 100),
+                _startVotingButton(),
+                SizedBox(height: 90),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

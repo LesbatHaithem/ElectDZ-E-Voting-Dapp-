@@ -330,14 +330,6 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
     return null;
   }
 
-
-
-
-
-
-
-
-
   void _readMRTD() async {
     try {
       setState(() {
@@ -536,16 +528,13 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return _buildPage(context);
   }
-
   bool _disabledInput() {
     return _isReading || !_isNfcAvailable;
   }
-
   String extractImageData(String inputHex) {
     // Find the index of the first occurrence of 'FFD8'
     int startIndex = inputHex.indexOf('ffd8');
@@ -565,8 +554,6 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
       return inputHex;
     }
   }
-
-
 
   Widget _makeMrtdDataWidget(
       {required String? header,
@@ -629,62 +616,133 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
     return list;
   }
 
-
-
   Scaffold _buildPage(BuildContext context) => Scaffold(
-    backgroundColor: Theme.of(context).colorScheme.background,
-    extendBodyBehindAppBar: true,// Consistent with other pages
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.background,  // Consistent with other pages
-
-        centerTitle: true,
-        title: Text(
-          'NFC-SCAN',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 21,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-            fontStyle: FontStyle.italic,
-            shadows: [
-              Shadow(
-                offset: Offset(1.0, 1.0),
-                blurRadius: 2.0,
-                color: Color.fromARGB(255, 0, 0, 0),
-              ),
-              Shadow(
-                offset: Offset(1.0, 1.0),
-                blurRadius: 2.0,
-                color: Color.fromARGB(125, 0, 0, 255),
-              ),
-            ],
-          ),
+    extendBodyBehindAppBar: true, // Extend the body behind the app bar
+    appBar: AppBar(
+      backgroundColor: Colors.transparent, // Make the app bar transparent
+      elevation: 0, // Remove the app bar shadow
+      centerTitle: true,
+      title: Text(
+        'NFC-SCAN',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 21,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.5,
+          fontStyle: FontStyle.italic,
+          shadows: [
+            Shadow(
+              offset: Offset(1.0, 1.0),
+              blurRadius: 2.0,
+              color: Color.fromARGB(255, 0, 0, 0),
+            ),
+            Shadow(
+              offset: Offset(1.0, 1.0),
+              blurRadius: 2.0,
+              color: Color.fromARGB(125, 0, 0, 255),
+            ),
+          ],
         ),
       ),
-
-    body: SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25),
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              const SizedBox(height: 20),
-              const SizedBox(height: 40),
-              _buildForm(context),
-              const SizedBox(height: 40),
-              if (_isNfcAvailable && _isReading)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: CupertinoActivityIndicator(
-                    color: Colors.black,
-                    radius: 18,
-                  ),
-                ),
-              if (_isNfcAvailable && !_isReading)
-                Column(
-                  children: [
+    ),
+    body: Stack(
+      children: [
+        // Background Image
+        Positioned.fill(
+          child: Opacity(
+            opacity: 0.3, // Adjust the opacity for fading effect
+            child: Image.asset(
+              'assets/voterpage.png', // Your background image asset
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal:17),
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
+                  _buildForm(context),
+                  const SizedBox(height: 40),
+                  if (_isNfcAvailable && _isReading)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: CupertinoActivityIndicator(
+                        color: Colors.black,
+                        radius: 18,
+                      ),
+                    ),
+                  if (_isNfcAvailable && !_isReading)
+                    Column(
+                      children: [
+                        Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isPressed = true;
+                              });
+                              Future.delayed(Duration(milliseconds: 300), () {
+                                setState(() {
+                                  _isPressed = false;
+                                });
+                                _initPlatformState();
+                                _readMRTD();
+                                _showUserInstructions = false; // Hide user instructions
+                              });
+                            },
+                            child: AnimatedContainer(
+                              duration: Duration(milliseconds: 300),
+                              height: 70,
+                              width: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(50),
+                                boxShadow: _isPressed
+                                    ? [
+                                  BoxShadow(
+                                    color: Colors.blueAccent.withOpacity(0.5),
+                                    spreadRadius: 20,
+                                    blurRadius: 30,
+                                  )
+                                ]
+                                    : [],
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Next',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (_showUserInstructions)
+                          const SizedBox(height: 20),
+                        if (_showUserInstructions)
+                          const Text(
+                            'Enter the Informations shown and Click Next , Please Make sure that the card is Well placed Usually on the top back of your device as shown in the animation ',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,                            ),
+                          ),
+                      ],
+                    ),
+                  if (!_isNfcAvailable && !_isReading)
                     Center(
                       child: GestureDetector(
                         onTap: () {
@@ -695,9 +753,19 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                             setState(() {
                               _isPressed = false;
                             });
-                            _initPlatformState();
-                            _readMRTD();
-                            _showUserInstructions = false; // Hide user instructions
+                            setState(() {
+                              _isNfcAvailable = false; // Start checking NFC
+                            });
+                            _initPlatformState().then((_) {
+                              setState(() {
+                                _isNfcAvailable = true; // NFC is available after checking
+                                _showUserInstructions = true; // Show user instructions if needed
+                              });
+                            }).catchError((error) {
+                              setState(() {
+                                _isNfcAvailable = true; // Reset on error, assuming NFC is not being checked
+                              });
+                            });
                           });
                         },
                         child: AnimatedContainer(
@@ -722,194 +790,131 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                             ),
                           ),
                           child: Center(
-                            child: Text(
-                              'Next',
+                            child: !_isNfcAvailable
+                                ? SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                                : Text(
+                              'Checking NFC State',
                               style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
                                 fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                    if (_showUserInstructions)
-                      const SizedBox(height: 10),
-                    if (_showUserInstructions)
-                      const Text(
-                        'Enter the Informations shown and Click Next , Please Make sure that the card is Well placed Usually on the top back of your device as shown in the animation ',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.grey,
-                        ),
-                      ),
-                  ],
-                ),
-              if (!_isNfcAvailable && !_isReading)
-                Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isPressed = true;
-                      });
-                      Future.delayed(Duration(milliseconds: 300), () {
-                        setState(() {
-                          _isPressed = false;
-                        });
-                        setState(() {
-                          _isNfcAvailable = false; // Start checking NFC
-                        });
-                        _initPlatformState().then((_) {
-                          setState(() {
-                            _isNfcAvailable = true; // NFC is available after checking
-                            _showUserInstructions = true; // Show user instructions if needed
-                          });
-                        }).catchError((error) {
-                          setState(() {
-                            _isNfcAvailable = true; // Reset on error, assuming NFC is not being checked
-                          });
-                        });
-                      });
-                    },
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 300),
-                      height: 70,
-                      width: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(50),
-                        boxShadow: _isPressed
-                            ? [
-                          BoxShadow(
-                            color: Colors.blueAccent.withOpacity(0.5),
-                            spreadRadius: 20,
-                            blurRadius: 30,
-                          )
-                        ]
-                            : [],
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 1,
-                        ),
-                      ),
-                      child: Center(
-                        child: !_isNfcAvailable
-                            ? SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                            : Text(
-                          'Checking NFC State',
+                  Padding(
+                    padding: const EdgeInsets.all(100.0),
+                    child: const SizedBox(height:110),
+                  ),
+                  Text(
+                    _alertMessage,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (jpegImage != null || jp2000Image != null)
+                    Center(
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          "Image",
                           style: TextStyle(
-                            fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            fontSize: 20,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: const SizedBox(height: 10),
-              ),
-              Text(_alertMessage,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontSize: 15.0, fontWeight: FontWeight.bold)),
-              if (jpegImage != null || jp2000Image != null)
-                Center(
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Image",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 20),
+                  if (jpegImage != null)
+                    Column(
+                      children: [
+                        SizedBox(height: 10),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.memory(
+                            jpegImage!,
+                            errorBuilder: (context, error, stackTrace) => SizedBox(),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-              if (jpegImage != null)
-                Column(
-                  children: [
-                    SizedBox(
-                      height: 10,
+                  if (jp2000Image != null)
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 10),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.memory(
+                            jp2000Image!,
+                            errorBuilder: (context, error, stackTrace) => SizedBox(),
+                          ),
+                        ),
+                      ],
                     ),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.memory(
-                        jpegImage!,
-                        errorBuilder: (context, error, stackTrace) => SizedBox(),
-                      ),
+                  if (rawHandSignatureData != null)
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 20),
+                        Text(
+                          "Signature",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.memory(
+                            rawHandSignatureData!,
+                            errorBuilder: (context, error, stackTrace) => SizedBox(),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              if (jp2000Image != null)
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 10,
-                    ),
-                    ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.memory(
-                          jp2000Image!,
-                          errorBuilder: (context, error, stackTrace) => SizedBox(),
-                        )),
-                  ],
-                ),
-              if (rawHandSignatureData != null)
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Text("Signature",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20)),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.memory(
-                          rawHandSignatureData!,
-                          errorBuilder: (context, error, stackTrace) => SizedBox(),
-                        )),
-                  ],
-                ),
-              SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(_mrtdData != null ? "NFC Scan Data:" : "",
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          _mrtdData != null ? "NFC Scan Data:" : "",
                           textAlign: TextAlign.left,
                           style: const TextStyle(
-                              fontSize: 15.0, fontWeight: FontWeight.bold)),
-                      Column(
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: _mrtdDataWidgets())
-                    ]),
+                          children: _mrtdDataWidgets(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
+      ],
     ),
-    floatingActionButton: _showFAB ? Showcase(
+    floatingActionButton: _showFAB
+        ? Showcase(
       key: _showcaseKey,
       description: 'Tap here to create profile',
       textColor: Colors.black,
@@ -980,9 +985,8 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
           ),
         ),
       ),
-    ) : null,
-
-
+    )
+        : null,
   );
 
   void _openNFCSettings() async {
@@ -1044,7 +1048,7 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                 decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Document number',
-                    fillColor: Colors.white
+                    fillColor: Colors.black
                 ),
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]+')),
@@ -1055,7 +1059,7 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                 autofocus: true,
                 validator: (value) {
                   if (value?.isEmpty ?? false) {
-                    return 'Please enter passport number';
+                    return 'Please enter ID number';
                   }
                   return null;
                 },
@@ -1100,7 +1104,7 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Date of Expiry',
-                      fillColor: Colors.white
+                      fillColor: Colors.black
                   ),
                   autofocus: false,
                   validator: (value) {

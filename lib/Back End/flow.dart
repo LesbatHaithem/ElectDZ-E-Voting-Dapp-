@@ -587,6 +587,7 @@ class _FlowScreenState extends State<FlowScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true, // Extend the body behind the app bar
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.0),
         child: Padding(
@@ -594,9 +595,16 @@ class _FlowScreenState extends State<FlowScreen> {
           child: ClipRRect(
             borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
             child: AppBar(
-              backgroundColor: Theme.of(context).colorScheme.background,
-              title: Text('ElectDz', style: TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold)),
-              elevation: 0,
+              backgroundColor: Colors.transparent, // Make the app bar transparent
+              title: Text(
+                'ElectDz',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              elevation: 0, // Remove the app bar shadow
               centerTitle: true,
               actions: [
                 Padding(
@@ -620,8 +628,19 @@ class _FlowScreenState extends State<FlowScreen> {
       ),
       body: Stack(
         children: [
+          // Background Image
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.3, // Adjust the opacity for fading effect
+              child: Image.asset(
+                'assets/background.png', // Your background image asset
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           Column(
             children: [
+              SizedBox(height: 80), // Add padding to avoid content being obscured by the app bar
               _buildQuorumCard(),
               Expanded(
                 child: PageView(
