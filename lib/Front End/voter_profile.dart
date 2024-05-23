@@ -6,6 +6,7 @@ import 'package:mrtdeg/Front End/Container.dart';
 import 'data_save.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mrtdeg/Back End/splash.dart';
+import 'dart:ui';
 
 class VoterProfilePage extends StatefulWidget {
   final MrtdData mrtdData;
@@ -74,11 +75,10 @@ class _VoterProfilePageState extends State<VoterProfilePage> {
           SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: 80), // Add padding to avoid content being obscured by the app bar
-                SizedBox(height: 10),
-                _isVisible ? _profileDetails() : Container(),
-                _isVisible ? _signatureSection() : Container(),
-                SizedBox(height: 100),
+                SizedBox(height: 110), // Add padding to avoid content being obscured by the app bar
+                _profileDetails(),
+                _signatureSection(),
+                SizedBox(height: 80),
                 _startVotingButton(),
                 SizedBox(height: 90),
               ],
@@ -117,22 +117,22 @@ class _VoterProfilePageState extends State<VoterProfilePage> {
         children: [
           glassmorphicContainer(
             context: context,
-            child: _detailsChip('Document Number', widget.mrtdData.dg1!.mrz.documentNumber),
+            child: _detailsChip('Document Number', _isVisible ? widget.mrtdData.dg1!.mrz.documentNumber : '******'),
             height: 50,
           ),
           glassmorphicContainer(
             context: context,
-            child: _detailsChip('Date of Birth', DateFormat.yMd().format(widget.mrtdData.dg1!.mrz.dateOfBirth)),
+            child: _detailsChip('Date of Birth', _isVisible ? DateFormat.yMd().format(widget.mrtdData.dg1!.mrz.dateOfBirth) : '******'),
             height: 50,
           ),
           glassmorphicContainer(
             context: context,
-            child: _detailsChip('Nationality', widget.mrtdData.dg1!.mrz.nationality),
+            child: _detailsChip('Nationality', _isVisible ? widget.mrtdData.dg1!.mrz.nationality : '******'),
             height: 50,
           ),
           glassmorphicContainer(
             context: context,
-            child: _detailsChip('Expires', DateFormat.yMd().format(widget.mrtdData.dg1!.mrz.dateOfExpiry)),
+            child: _detailsChip('Expires', _isVisible ? DateFormat.yMd().format(widget.mrtdData.dg1!.mrz.dateOfExpiry) : '******'),
             height: 50,
           ),
         ],
@@ -166,9 +166,17 @@ class _VoterProfilePageState extends State<VoterProfilePage> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
-              child: Image.memory(
+              child: _isVisible
+                  ? Image.memory(
                 widget.rawHandSignatureData!,
                 fit: BoxFit.contain,
+              )
+                  : ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Image.memory(
+                  widget.rawHandSignatureData!,
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ),

@@ -108,7 +108,7 @@ class _NfcAppState extends State<NfcApp> {
             child: Opacity(
               opacity: 0.3, // Adjust the opacity for fading effect
               child: Image.asset(
-                'assets/background4.png', // Your background image asset
+                'assets/Nfc-tech.png', // Your background image asset
                 fit: BoxFit.cover,
               ),
             ),

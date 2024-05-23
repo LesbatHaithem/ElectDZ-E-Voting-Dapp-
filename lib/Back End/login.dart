@@ -116,37 +116,47 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     return Scaffold(
-      body: Center(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [
-                Colors.blue,
-                Colors.white,
-              ],
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/background4.png', // Replace with your background image asset
+              fit: BoxFit.cover,
             ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(36.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  height: 155.0,
-                  child: Image.asset('assets/wallet1.png'),
+          Center(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    Colors.blue.withOpacity(0.5),
+                    Colors.white.withOpacity(0.5),
+                  ],
                 ),
-                SizedBox(height: 25.0),
-                passwordField,
-                SizedBox(height: 35.0),
-                loginButton,
-                SizedBox(height: 15.0),
-              ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(36.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      height: 155.0,
+                      child: Image.asset('assets/wallet1.png'),
+                    ),
+                    SizedBox(height: 25.0),
+                    passwordField,
+                    SizedBox(height: 35.0),
+                    loginButton,
+                    SizedBox(height: 15.0),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -146,7 +146,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
             child: Opacity(
               opacity: 0.3, // Adjust the opacity for fading effect
               child: Image.asset(
-                'assets/background3.png', // Your background image asset
+                'assets/voterpage.png', // Your background image asset
                 fit: BoxFit.cover,
               ),
             ),
@@ -173,14 +173,14 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                     ),
                   ),
                 ),
-                SizedBox(height: 40),
+                SizedBox(height: 350),
                 Lottie.asset(
                   'assets/GetStarted.json',
-                  width: 430,
-                  height: 400,
+                  width: 150,
+                  height: 150,
                   fit: BoxFit.fill,
                 ),
-                SizedBox(height: 50),
+                SizedBox(height: 40),
                 Showcase(
                   key: _one,
                   description: 'Tap here to start',
