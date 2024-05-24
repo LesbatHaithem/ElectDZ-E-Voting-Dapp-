@@ -631,7 +631,7 @@ class _FlowScreenState extends State<FlowScreen> {
           // Background Image
           Positioned.fill(
             child: Opacity(
-              opacity: 0.3, // Adjust the opacity for fading effect
+              opacity: 0.6, // Adjust the opacity for fading effect
               child: Image.asset(
                 'assets/background.png', // Your background image asset
                 fit: BoxFit.cover,

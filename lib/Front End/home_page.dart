@@ -38,7 +38,6 @@ import'voter_profile.dart';
 import'package:showcaseview/showcaseview.dart';
 import'package:shared_preferences/shared_preferences.dart';
 
-
 class MrtdData {
   EfCardAccess? cardAccess;
   EfCardSecurity? cardSecurity;
@@ -64,10 +63,6 @@ class MrtdData {
 
 }
 
-
-
-
-
 final Map<DgTag, String> dgTagToString = {
   EfDG1.TAG: 'EF.DG1',
   EfDG2.TAG: 'EF.DG2',
@@ -87,9 +82,6 @@ final Map<DgTag, String> dgTagToString = {
   EfDG16.TAG: 'EF.DG16'
 
 };
-
-
-
 
 String formatEfCom(final EfCOM efCom) {
   var str = "version: ${efCom.version}\n"
@@ -173,8 +165,6 @@ String formatProgressMsg(String message, int percentProgress) {
   final empty = "⚪️ " * (5 - p);
   return message + "\n\n" + full + empty;
 }
-
-
 
 class MrtdHomePage extends StatefulWidget {
   @override
@@ -561,10 +551,14 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
         required String? dataText}) {
     return ListTile(
       contentPadding: EdgeInsets.all(0),
-      title: Text(header ?? ""),
+
+      title: Text(header ?? "",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold), // Set text color to black
+      ),
+
       onLongPress: () =>
           Clipboard.setData(ClipboardData(text: dataText ?? "Null")),
-      subtitle: SelectableText(dataText ?? "Null", textAlign: TextAlign.left),
+      subtitle: SelectableText(dataText ?? "Null", textAlign: TextAlign.left,style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold) // Set text color to black
+      ),
       trailing: IconButton(
         icon: const Icon(
           Icons.copy,
@@ -650,7 +644,7 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
         // Background Image
         Positioned.fill(
           child: Opacity(
-            opacity: 0.3, // Adjust the opacity for fading effect
+            opacity: 0.5, // Adjust the opacity for fading effect
             child: Image.asset(
               'assets/voterpage.png', // Your background image asset
               fit: BoxFit.cover,
@@ -897,6 +891,7 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                           style: const TextStyle(
                             fontSize: 15.0,
                             fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
                         ),
                         Column(
@@ -1036,106 +1031,122 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
 
   Padding _buildForm(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 30.0),
-        child: Form(
-          key: _mrzData,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TextFormField(
-                enabled: !_disabledInput(),
-                controller: _docNumber,
-                decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Document number',
-                    fillColor: Colors.black
+      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
+      child: Form(
+        key: _mrzData,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            TextFormField(
+              enabled: !_disabledInput(),
+              controller: _docNumber,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]+')),
-                  LengthLimitingTextInputFormatter(14)
-                ],
-                textInputAction: TextInputAction.done,
-                textCapitalization: TextCapitalization.characters,
-                autofocus: true,
-                validator: (value) {
-                  if (value?.isEmpty ?? false) {
-                    return 'Please enter ID number';
-                  }
-                  return null;
-                },
+                labelText: 'Document Number',
+                labelStyle: TextStyle(color: Colors.black),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface,
+                prefixIcon: Icon(Icons.description, color: Theme.of(context).colorScheme.primary),
               ),
-              SizedBox(height: 12),
-              TextFormField(
-                  enabled: !_disabledInput(),
-                  controller: _dob,
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Date of Birth',
-                      fillColor: Colors.white
-                  ),
-                  autofocus: false,
-                  validator: (value) {
-                    if (value?.isEmpty ?? false) {
-                      return 'Please select Date of Birth';
-                    }
-                    return null;
-                  },
-                  onTap: () async {
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    // Can pick date which dates 15 years back or more
-                    final now = DateTime.now();
-                    final firstDate = DateTime(now.year - 90, now.month, now.day);
-                    final lastDate  = DateTime(now.year - 15, now.month, now.day);
-                    final initDate  = _getDOBDate();
-                    final date = await _pickDate(context,
-                        firstDate, initDate ?? lastDate, lastDate
-                    );
-
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    if(date != null) {
-                      _dob.text = date;
-                    }
-                  }
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]+')),
+                LengthLimitingTextInputFormatter(14),
+              ],
+              textInputAction: TextInputAction.done,
+              textCapitalization: TextCapitalization.characters,
+              autofocus: true,
+              validator: (value) {
+                if (value?.isEmpty ?? false) {
+                  return 'Please enter ID number';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              enabled: !_disabledInput(),
+              controller: _dob,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                labelText: 'Date of Birth',
+                labelStyle: TextStyle(color: Colors.black),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface,
+                prefixIcon: Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary),
               ),
-              SizedBox(height: 12),
-              TextFormField(
-                  enabled: !_disabledInput(),
-                  controller: _doe,
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Date of Expiry',
-                      fillColor: Colors.black
-                  ),
-                  autofocus: false,
-                  validator: (value) {
-                    if (value?.isEmpty ?? false) {
-                      return 'Please select Date of Expiry';
-                    }
-                    return null;
-                  },
-                  onTap: () async {
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    // Can pick date from tomorrow and up to 10 years
-                    final now = DateTime.now();
-                    final firstDate = DateTime(now.year, now.month, now.day + 1);
-                    final lastDate  = DateTime(now.year + 10, now.month + 6, now.day);
-                    final initDate  = _getDOEDate();
-                    final date = await _pickDate(context, firstDate,
-                        initDate ?? firstDate, lastDate
-                    );
+              autofocus: false,
+              validator: (value) {
+                if (value?.isEmpty ?? false) {
+                  return 'Please select Date of Birth';
+                }
+                return null;
+              },
+              onTap: () async {
+                FocusScope.of(context).requestFocus(FocusNode());
+                final now = DateTime.now();
+                final firstDate = DateTime(now.year - 90, now.month, now.day);
+                final lastDate = DateTime(now.year - 15, now.month, now.day);
+                final initDate = _getDOBDate();
+                final date = await _pickDate(
+                  context,
+                  firstDate,
+                  initDate ?? lastDate,
+                  lastDate,
+                );
 
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    if(date != null) {
-                      _doe.text = date;
-                    }
-                  }
-              )
-            ],
-          ),
-        )
+                FocusScope.of(context).requestFocus(FocusNode());
+                if (date != null) {
+                  _dob.text = date;
+                }
+              },
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              enabled: !_disabledInput(),
+              controller: _doe,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                labelText: 'Date of Expiry',
+                labelStyle: TextStyle(color: Colors.black),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface,
+                prefixIcon: Icon(Icons.date_range, color: Theme.of(context).colorScheme.primary),
+              ),
+              autofocus: false,
+              validator: (value) {
+                if (value?.isEmpty ?? false) {
+                  return 'Please select Date of Expiry';
+                }
+                return null;
+              },
+              onTap: () async {
+                FocusScope.of(context).requestFocus(FocusNode());
+                final now = DateTime.now();
+                final firstDate = DateTime(now.year, now.month, now.day + 1);
+                final lastDate = DateTime(now.year + 10, now.month + 6, now.day);
+                final initDate = _getDOEDate();
+                final date = await _pickDate(
+                  context,
+                  firstDate,
+                  initDate ?? firstDate,
+                  lastDate,
+                );
+
+                FocusScope.of(context).requestFocus(FocusNode());
+                if (date != null) {
+                  _doe.text = date;
+                }
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
-
-
-

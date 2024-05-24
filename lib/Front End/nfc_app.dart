@@ -106,7 +106,7 @@ class _NfcAppState extends State<NfcApp> {
           // Background Image
           Positioned.fill(
             child: Opacity(
-              opacity: 0.3, // Adjust the opacity for fading effect
+              opacity: 0.4, // Adjust the opacity for fading effect
               child: Image.asset(
                 'assets/Nfc-tech.png', // Your background image asset
                 fit: BoxFit.cover,
@@ -120,7 +120,7 @@ class _NfcAppState extends State<NfcApp> {
               children: [
                 SizedBox(height:10),
                 Lottie.asset(
-                  'assets/NFC.json',
+                  'assets/nfc-scan.json',
                   width: 400,
                   height: 300,
                   fit: BoxFit.fill,

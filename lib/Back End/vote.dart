@@ -5,7 +5,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:mrtdeg/Back%20End/blockchain.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'Gradientbutton.dart';
+import '../UI/Gradientbutton.dart';
 import 'winner.dart';
 import 'dart:ui'; // Import for the blur effect
 
@@ -364,6 +364,7 @@ class _VoteState extends State<Vote> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
         child: Padding(
@@ -371,7 +372,7 @@ class _VoteState extends State<Vote> {
           child: ClipRRect(
             borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
             child: AppBar(
-              backgroundColor: Theme.of(context).colorScheme.background,
+              backgroundColor: Colors.transparent, // Make the app bar transparent
               title: Text('Vote', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
               elevation: 0,
               centerTitle: true,
@@ -379,266 +380,279 @@ class _VoteState extends State<Vote> {
           ),
         ),
       ),
-      body: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: LiquidPullToRefresh(
-          onRefresh: _handleRefresh,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
-            child: ListView(
-              children: [
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: <Widget>[
-                      const Text(
-                        'Vote The New Mayor',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 20),
-                      StaggeredGrid.count(
-                        crossAxisCount: 1,
-                        mainAxisSpacing: 4.0,
-                        crossAxisSpacing: 4.0,
-                        children: List.generate(groups.length, (int groupIndex) {
-                          var group = groups[groupIndex];
-                          var validCandidates = group['candidates'].where((candidate) => candidates.contains(candidate)).toList();
-                          validCandidates.remove(groupAddresses[groupIndex]); // Remove the group address
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedGroup = groupIndex;
-                              });
-                            },
-                            child: Card(
-                              elevation: 5,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              color: (_selectedGroup == groupIndex) ? Colors.lightBlueAccent : Colors.white,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(30),
-                                child: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(30),
-                                      color: Colors.white.withOpacity(0.2),
-                                      border: Border.all(
-                                        color: Colors.white.withOpacity(0.2),
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: Column(
-                                        children: [
-                                          ListTile(
-                                            leading: Container(
-                                              width: 40,
-                                              height: 50,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(10),
-                                                image: DecorationImage(
-                                                  image: NetworkImage(group['pictureUrl']),
-                                                  fit: BoxFit.cover,
-                                                  onError: (exception, stackTrace) {
-                                                    setState(() {
-                                                      group['pictureUrl'] = 'assets/placeholder.png';
-                                                    });
-                                                  },
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.3, // Adjust the opacity for fading effect
+              child: Image.asset(
+                'assets/background.png', // Your background image asset
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: LiquidPullToRefresh(
+              onRefresh: _handleRefresh,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+                child: ListView(
+                  children: [
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: <Widget>[
+                          const Text(
+                            'Vote The New Mayor',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 20),
+                          StaggeredGrid.count(
+                            crossAxisCount: 1,
+                            mainAxisSpacing: 4.0,
+                            crossAxisSpacing: 4.0,
+                            children: List.generate(groups.length, (int groupIndex) {
+                              var group = groups[groupIndex];
+                              var validCandidates = group['candidates'].where((candidate) => candidates.contains(candidate)).toList();
+                              validCandidates.remove(groupAddresses[groupIndex]); // Remove the group address
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedGroup = groupIndex;
+                                  });
+                                },
+                                child: Card(
+                                  elevation: 5,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  color: (_selectedGroup == groupIndex) ? Colors.lightBlueAccent : Colors.white,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(30),
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(30),
+                                          color: Colors.white.withOpacity(0.2),
+                                          border: Border.all(
+                                            color: Colors.white.withOpacity(0.2),
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(10.0),
+                                          child: Column(
+                                            children: [
+                                              ListTile(
+                                                leading: Container(
+                                                  width: 40,
+                                                  height: 50,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                    image: DecorationImage(
+                                                      image: NetworkImage(group['pictureUrl']),
+                                                      fit: BoxFit.cover,
+                                                      onError: (exception, stackTrace) {
+                                                        setState(() {
+                                                          group['pictureUrl'] = 'assets/placeholder.png';
+                                                        });
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                                title: Text(
+                                                  group['name'],
+                                                  style: TextStyle(
+                                                    color: (_selectedGroup == groupIndex) ? Colors.black : Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            title: Text(
-                                              group['name'],
-                                              style: TextStyle(
-                                                color: (_selectedGroup == groupIndex) ? Colors.black : Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
-                                              ),
-                                            ),
-                                          ),
-                                          CarouselSlider(
-                                            options: CarouselOptions(
-                                              height: 200,
-                                              enlargeCenterPage: true,
-                                              autoPlay: true,
-                                              aspectRatio: 16 / 9,
-                                              autoPlayCurve: Curves.fastOutSlowIn,
-                                              enableInfiniteScroll: true,
-                                              autoPlayAnimationDuration: Duration(milliseconds: 400),
-                                              viewportFraction: 0.8,
-                                            ),
-                                            items: validCandidates.map<Widget>((candidate) {
-                                              int candidateIndex = candidates.indexOf(candidate);
-                                              return Builder(
-                                                builder: (BuildContext context) {
-                                                  return Column(
-                                                    children: [
-                                                      Padding(
-                                                        padding: const EdgeInsets.all(10.0),
-                                                        child: Container(
-                                                          width: 100,
-                                                          height: 100,
-                                                          decoration: BoxDecoration(
-                                                            borderRadius: BorderRadius.circular(20),
-                                                            image: DecorationImage(
-                                                              image: NetworkImage(imageUrls[candidateIndex]),
-                                                              fit: BoxFit.cover,
-                                                              onError: (exception, stackTrace) {
-                                                                setState(() {
-                                                                  imageUrls[candidateIndex] = 'assets/placeholder.png';
-                                                                });
-                                                              },
+                                              CarouselSlider(
+                                                options: CarouselOptions(
+                                                  height: 200,
+                                                  enlargeCenterPage: true,
+                                                  autoPlay: true,
+                                                  aspectRatio: 16 / 9,
+                                                  autoPlayCurve: Curves.fastOutSlowIn,
+                                                  enableInfiniteScroll: true,
+                                                  autoPlayAnimationDuration: Duration(milliseconds: 400),
+                                                  viewportFraction: 0.8,
+                                                ),
+                                                items: validCandidates.map<Widget>((candidate) {
+                                                  int candidateIndex = candidates.indexOf(candidate);
+                                                  return Builder(
+                                                    builder: (BuildContext context) {
+                                                      return Column(
+                                                        children: [
+                                                          Padding(
+                                                            padding: const EdgeInsets.all(10.0),
+                                                            child: Container(
+                                                              width: 100,
+                                                              height: 100,
+                                                              decoration: BoxDecoration(
+                                                                borderRadius: BorderRadius.circular(20),
+                                                                image: DecorationImage(
+                                                                  image: NetworkImage(imageUrls[candidateIndex]),
+                                                                  fit: BoxFit.cover,
+                                                                  onError: (exception, stackTrace) {
+                                                                    setState(() {
+                                                                      imageUrls[candidateIndex] = 'assets/placeholder.png';
+                                                                    });
+                                                                  },
+                                                                ),
+                                                              ),
                                                             ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                      SizedBox(height: 10),
-                                                      Text(
-                                                        "${firstNames[candidateIndex]} ${lastNames[candidateIndex]}",
-                                                        style: TextStyle(
-                                                          color: Colors.black,
-                                                          fontWeight: FontWeight.bold,
-                                                          fontSize: 18,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                          SizedBox(height: 10),
+                                                          Text(
+                                                            "${firstNames[candidateIndex]} ${lastNames[candidateIndex]}",
+                                                            style: TextStyle(
+                                                              color: Colors.black,
+                                                              fontWeight: FontWeight.bold,
+                                                              fontSize: 18,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
                                                   );
-                                                },
-                                              );
-                                            }).toList(),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Create Secret code',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20), // Rounded corners
-                            borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20), // Rounded corners
-                            borderSide: BorderSide(color: Colors.black),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20), // Rounded corners
-                            borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                          ),
-                          contentPadding: EdgeInsets.all(16.0),
-                          suffixIcon: IconButton(
-                            icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
-                            onPressed: () {
-                              setState(() {
-                                _obscureText = !_obscureText;
-                              });
-                            },
-                          ),
-                        ),
-                        obscureText: _obscureText,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a secret code';
-                          }
-                          return null;
-                        },
-                        keyboardType: TextInputType.number,
-                        controller: textSecretController,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Center(
-                              child: Container(
-                                width: 200,
-                                child: GradientButton(
-                                  text: "Cast Vote",
-                                  onPressed: () {
-                                    _sendVote();
-                                  },
-                                  width: 200,
-                                  height: 50,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Center(
-                        child: Container(
-                          child: Card(
-                            elevation: 5,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            child: Container(
-                              width: 405,
-                              height: 115,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.0),
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Colors.white,
-                                    Colors.blue,
-                                  ],
-                                ),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  ListTile(
-                                    leading: CircularProgressIndicator(
-                                      color: Colors.green,
-                                      value: quorumCircle,
-                                    ),
-                                    trailing: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        foregroundColor: Colors.white,
-                                        backgroundColor: Colors.blue,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(30.0),
-                                          side: BorderSide(
-                                            color: Colors.blue,
-                                            width: 1.0,
+                                                }).toList(),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
-                                      onPressed: _updateQuorum,
-                                      child: Text("Update"),
                                     ),
-                                    title: Text('$quorumText'),
                                   ),
-                                ],
+                                ),
+                              );
+                            }),
+                          ),
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: 'Create Secret code',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Rounded corners
+                                borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Rounded corners
+                                borderSide: BorderSide(color: Colors.black),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Rounded corners
+                                borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                              ),
+                              contentPadding: EdgeInsets.all(16.0),
+                              suffixIcon: IconButton(
+                                icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscureText = !_obscureText;
+                                  });
+                                },
+                              ),
+                            ),
+                            obscureText: _obscureText,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a secret code';
+                              }
+                              return null;
+                            },
+                            keyboardType: TextInputType.number,
+                            controller: textSecretController,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: Center(
+                                  child: Container(
+                                    width: 200,
+                                    child: GradientButton(
+                                      text: "Cast Vote",
+                                      onPressed: () {
+                                        _sendVote();
+                                      },
+                                      width: 200,
+                                      height: 50,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Center(
+                            child: Container(
+                              child: Card(
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: Container(
+                                  width: 405,
+                                  height: 115,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Colors.white,
+                                        Colors.blue,
+                                      ],
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      ListTile(
+                                        leading: CircularProgressIndicator(
+                                          color: Colors.green,
+                                          value: quorumCircle,
+                                        ),
+                                        trailing: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            foregroundColor: Colors.white,
+                                            backgroundColor: Colors.blue,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(30.0),
+                                              side: BorderSide(
+                                                color: Colors.blue,
+                                                width: 1.0,
+                                              ),
+                                            ),
+                                          ),
+                                          onPressed: _updateQuorum,
+                                          child: Text("Update"),
+                                        ),
+                                        title: Text('$quorumText'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -6,8 +6,11 @@ import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mrtdeg/Front%20End/nfc_app.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main()async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Ensure Firebase is initialized
   if (kDebugMode) {
     Logger.root.level = Level.ALL;
     Logger.root.onRecord.listen((record) {
@@ -144,7 +147,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
           // Background Image
           Positioned.fill(
             child: Opacity(
-              opacity: 0.3, // Adjust the opacity for fading effect
+              opacity: 0.5, // Adjust the opacity for fading effect
               child: Image.asset(
                 'assets/voterpage.png', // Your background image asset
                 fit: BoxFit.cover,
@@ -166,21 +169,21 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                       "Welcome to Elect-DZ E-Voting dApp",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onBackground,
-                        fontSize: 28,
+                        color:Colors.black,
+                        fontSize: 30,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
                 SizedBox(height: 350),
-                Lottie.asset(
-                  'assets/GetStarted.json',
-                  width: 150,
-                  height: 150,
-                  fit: BoxFit.fill,
-                ),
-                SizedBox(height: 40),
+                // Lottie.asset(
+                //   'assets/Blockchain.json',
+                //   width: 150,
+                //   height: 150,
+                //   fit: BoxFit.fill,
+                // ),
+                SizedBox(height: 200),
                 Showcase(
                   key: _one,
                   description: 'Tap here to start',

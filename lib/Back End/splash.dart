@@ -80,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen> {
           // Background Image
           Positioned.fill(
             child: Opacity(
-              opacity: 0.3, // Adjust the opacity for fading effect
+              opacity: 0.5, // Adjust the opacity for fading effect
               child: Image.asset(
                 'assets/voterpage.png', // Your background image asset
                 fit: BoxFit.cover,
@@ -104,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     SizedBox(
                       height: 400.0,
                       child: SvgPicture.asset(
-                        'assets/logo.svg', // Replace with your logo image path
+                        'assets/Splash-logo.svg', // Replace with your logo image path
                         width: 400,
                         height: 400,
                       ),
@@ -112,7 +112,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     SizedBox(height: 5.0),
                     SizedBox(
                       height: 80.0,
-                      child: Lottie.asset('assets/splashb.json', width: 300),
+                      child: Lottie.asset('assets/splash.json', width: 300),
                     ),
                     SizedBox(height: 1.0),
                     Container(
@@ -171,6 +171,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),
@@ -245,7 +246,7 @@ class _NoBlockChainScreenState extends State<NoBlockChainScreen> with SingleTick
               children: <Widget>[
                 SizedBox(
                   height: 250.0,
-                  child: Image.asset('assets/no_signal.png'),
+                  child: Image.asset('assets/no-signal.png'),
                 ),
                 SizedBox(height: 5.0),
                 Text(

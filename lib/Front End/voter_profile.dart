@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'dart:typed_data';
 import 'home_page.dart';
-import 'package:mrtdeg/Front End/Container.dart';
-import 'data_save.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mrtdeg/Back End/splash.dart';
+import 'package:mrtdeg/UI/Container.dart';
+import 'package:mrtdeg/Back%20End/splash.dart';
 import 'dart:ui';
+import 'dart:convert';
+import 'package:mrtdeg/firebase/authenticate_user/authenticate_user_page.dart';
 
 class VoterProfilePage extends StatefulWidget {
   final MrtdData mrtdData;
@@ -27,10 +28,10 @@ class _VoterProfilePageState extends State<VoterProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true, // Extend the body behind the app bar
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent, // Make the app bar transparent
-        elevation: 0, // Remove the app bar shadow
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         centerTitle: true,
         title: Text(
           '${widget.mrtdData.dg1?.mrz.firstName} ${widget.mrtdData.dg1?.mrz.lastName}',
@@ -65,9 +66,9 @@ class _VoterProfilePageState extends State<VoterProfilePage> {
           // Background Image
           Positioned.fill(
             child: Opacity(
-              opacity: 0.3, // Adjust the opacity for fading effect
+              opacity: 0.5,
               child: Image.asset(
-                'assets/voterpage.png', // Your background image asset
+                'assets/voterpage.png',
                 fit: BoxFit.cover,
               ),
             ),
@@ -75,7 +76,7 @@ class _VoterProfilePageState extends State<VoterProfilePage> {
           SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: 110), // Add padding to avoid content being obscured by the app bar
+                SizedBox(height: 110),
                 _profileDetails(),
                 _signatureSection(),
                 SizedBox(height: 80),
@@ -218,12 +219,12 @@ class _VoterProfilePageState extends State<VoterProfilePage> {
               await _saveProfile();
             }
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SplashScreen(),
-              ),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => SplashScreen(),
+            //   ),
+            // );
           });
         },
         child: AnimatedContainer(
@@ -264,19 +265,21 @@ class _VoterProfilePageState extends State<VoterProfilePage> {
 
   Future<void> _saveProfile() async {
     var profileData = {
-      'documentNumber': widget.mrtdData.dg1!.mrz.documentNumber,
       'firstName': widget.mrtdData.dg1!.mrz.firstName,
       'lastName': widget.mrtdData.dg1!.mrz.lastName,
-      'dateOfBirth': DateFormat.yMd().format(widget.mrtdData.dg1!.mrz.dateOfBirth),
-      'nationality': widget.mrtdData.dg1!.mrz.nationality,
-      'dateOfExpiry': DateFormat.yMd().format(widget.mrtdData.dg1!.mrz.dateOfExpiry),
-      'imageData': widget.mrtdData.dg2!.imageData,
-      'signatureData': widget.rawHandSignatureData
+      'image': base64Encode(widget.mrtdData.dg2!.imageData!), // Encoding image to base64 string
     };
 
-    final dbHelper = DatabaseHelper.instance;
-    int id = await dbHelper.insertProfile(profileData);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('profileSaved', true);
+    // Save to Firestore
+    FirebaseFirestore.instance.collection('users').add(profileData).then((docRef) {
+      print("User data saved to Firestore with ID: ${docRef.id}");
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => AuthenticateUserPage(),
+        ),
+      );
+    }).catchError((error) {
+      print("Failed to save user data: $error");
+    });
   }
 }

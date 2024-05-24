@@ -6,7 +6,7 @@ import 'package:mrtdeg/Back%20End/splash.dart';
 import 'package:mrtdeg/Back%20End/utils.dart';
 import 'package:mrtdeg/Back%20End/winnerModel.dart';
 import 'package:web3dart/json_rpc.dart';
-import 'package:mrtdeg/Back%20End/Gradientbutton.dart';
+import 'package:mrtdeg/UI/Gradientbutton.dart';
 import 'package:mrtdeg/Back%20End/flow.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'dart:ui'; // Import for the blur effect
@@ -152,7 +152,7 @@ class _WinnerState extends State<Winner> {
           margin: const EdgeInsets.only(top: 30.0),
           child: Column(
             children: <Widget>[
-              Text("Loading Page ", style: TextStyle(fontSize: 40)),
+              Text("", style: TextStyle(fontSize: 40)),
             ],
           ),
         ),
@@ -196,9 +196,10 @@ class _WinnerState extends State<Winner> {
       body = Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(4.0),
             child: Column(
               children: [
+                SizedBox(height: 80), // Adjust the height to position the card correctly
                 // Top Winner
                 Card(
                   elevation: 5,
@@ -256,7 +257,7 @@ class _WinnerState extends State<Winner> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 1),
                 // Ranked List
                 Expanded(
                   child: MasonryGridView.builder(
@@ -311,7 +312,7 @@ class _WinnerState extends State<Winner> {
                                     subtitle: Text("Votes: ${group.votes} (${group.percentage!.toStringAsFixed(2)}%)"),
                                   ),
                                   Container(
-                                    height: 150,
+                                    height: 200,
                                     width: double.infinity,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.only(
@@ -355,6 +356,7 @@ class _WinnerState extends State<Winner> {
       );
     }
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.0),
         child: Padding(
@@ -362,7 +364,7 @@ class _WinnerState extends State<Winner> {
           child: ClipRRect(
             borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
             child: AppBar(
-              backgroundColor: Theme.of(context).colorScheme.background,
+              backgroundColor: Colors.transparent, // Make the app bar transparent
               title: Text('Winner', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
               elevation: 0,
               centerTitle: true,
@@ -378,18 +380,28 @@ class _WinnerState extends State<Winner> {
           ),
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              Colors.white,
-              Colors.blue,
-            ],
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/background.png', // Replace with your background image asset
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: body,
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  Colors.white.withOpacity(0.6),
+                  Colors.blue.withOpacity(0.6),
+                ],
+              ),
+            ),
+            child: body,
+          ),
+        ],
       ),
     );
   }
