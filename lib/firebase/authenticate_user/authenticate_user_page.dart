@@ -28,16 +28,20 @@ class _AuthenticateUserPageState extends State<AuthenticateUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.0),
         child: ClipRRect(
           child: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.background,
-            title: Text('INTAKHIB', style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            )),
+            backgroundColor: Colors.transparent,
+            title: Text(
+              'ElectDZ',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             elevation: 0,
             centerTitle: true,
           ),
@@ -46,8 +50,11 @@ class _AuthenticateUserPageState extends State<AuthenticateUserPage> {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            SizedBox(height: 60), // Add some space below the AppBar
+
+            SizedBox(height: 20),
             Stack(
               children: [
                 CaptureFaceView(
@@ -63,15 +70,15 @@ class _AuthenticateUserPageState extends State<AuthenticateUserPage> {
                   const Align(
                     alignment: Alignment.topCenter,
                     child: Padding(
-                      padding: EdgeInsets.only(top: 102),
+                      padding: EdgeInsets.only(top: 110),
                       child: AnimatedView(),
                     ),
                   ),
               ],
             ),
             if (canAuthenticate)
-              Align(
-                alignment: Alignment.topCenter,
+              Padding(
+                padding: const EdgeInsets.only(top: 20), // Added top padding
                 child: SizedBox(
                   width: 300,
                   height: 50,
@@ -136,7 +143,7 @@ class _AuthenticateUserPageState extends State<AuthenticateUserPage> {
                           });
 
                           if (!faceMatched) {
-                            errorSnackBar(context, 'Not eligible for voting ');
+                            errorSnackBar(context, 'You are Not the Owner Of this ID card \n If you insist take another Picture and Try again ! ');
                           }
                         } else {
                           errorSnackBar(context, 'Sorry retry');

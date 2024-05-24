@@ -22,7 +22,7 @@ class UserAuthenticatedPage extends StatelessWidget {
         child: ClipRRect(
           child: AppBar(
             backgroundColor: Theme.of(context).colorScheme.background,
-            title: Text('INTAKHIB', style: TextStyle(
+            title: Text('ElectDz', style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -65,7 +65,7 @@ class UserAuthenticatedPage extends StatelessWidget {
               ),
             ),
             Text(
-                  'hey ${Firstname}!',
+                  'hey ${Firstname} !',
               textAlign: TextAlign.center,
               style:  TextStyle(
 
@@ -74,7 +74,7 @@ class UserAuthenticatedPage extends StatelessWidget {
               ),
             ),
             Text(
-              'You have been successfully Authenticated!',
+              'You have been successfully Authenticated !',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
