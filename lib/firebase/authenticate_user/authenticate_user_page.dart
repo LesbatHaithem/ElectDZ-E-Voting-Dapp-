@@ -35,7 +35,7 @@ class _AuthenticateUserPageState extends State<AuthenticateUserPage> {
           child: AppBar(
             backgroundColor: Colors.transparent,
             title: Text(
-              'ElectDZ',
+              'ElectDz',
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 24,
@@ -54,7 +54,7 @@ class _AuthenticateUserPageState extends State<AuthenticateUserPage> {
           children: [
             SizedBox(height: 60), // Add some space below the AppBar
 
-            SizedBox(height: 20),
+            SizedBox(height: 30),
             Stack(
               children: [
                 CaptureFaceView(
@@ -79,95 +79,116 @@ class _AuthenticateUserPageState extends State<AuthenticateUserPage> {
             if (canAuthenticate)
               Padding(
                 padding: const EdgeInsets.only(top: 20), // Added top padding
-                child: SizedBox(
-                  width: 300,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        isMatching = true;
-                      });
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isMatching = true;
+                    });
 
-                      FirebaseFirestore.instance
-                          .collection('users')
-                          .get()
-                          .then((snap) async {
-                        if (snap.docs.isNotEmpty) {
-                          for (var doc in snap.docs) {
-                            try {
-                              final user = User.fromJson(doc.data() ?? {});
+                    FirebaseFirestore.instance
+                        .collection('users')
+                        .get()
+                        .then((snap) async {
+                      if (snap.docs.isNotEmpty) {
+                        for (var doc in snap.docs) {
+                          try {
+                            final user = User.fromJson(doc.data() ?? {});
 
-                              if (user.image == null || user.image.isEmpty) {
-                                print('User image is null or empty');
-                                continue;
-                              }
+                            if (user.image == null || user.image.isEmpty) {
+                              print('User image is null or empty');
+                              continue;
+                            }
 
-                              image2.bitmap = user.image;
-                              image2.imageType = regula.ImageType.PRINTED;
+                            image2.bitmap = user.image;
+                            image2.imageType = regula.ImageType.PRINTED;
 
-                              var request = regula.MatchFacesRequest();
-                              request.images = [image1, image2];
+                            var request = regula.MatchFacesRequest();
+                            request.images = [image1, image2];
 
-                              var value = await regula.FaceSDK.matchFaces(jsonEncode(request));
-                              var response = regula.MatchFacesResponse.fromJson(json.decode(value));
+                            var value = await regula.FaceSDK.matchFaces(jsonEncode(request));
+                            var response = regula.MatchFacesResponse.fromJson(json.decode(value));
 
-                              if (response != null && response.results != null) {
-                                var str = await regula.FaceSDK.matchFacesSimilarityThresholdSplit(jsonEncode(response.results), 0.75);
-                                var split = regula.MatchFacesSimilarityThresholdSplit.fromJson(json.decode(str));
+                            if (response != null && response.results != null) {
+                              var str = await regula.FaceSDK.matchFacesSimilarityThresholdSplit(jsonEncode(response.results), 0.75);
+                              var split = regula.MatchFacesSimilarityThresholdSplit.fromJson(json.decode(str));
 
-                                if (split != null && split.matchedFaces.isNotEmpty) {
-                                  final matchedFace = split.matchedFaces[0];
-                                  if (matchedFace != null && matchedFace.similarity != null) {
-                                    similarity = (matchedFace.similarity! * 100).toStringAsFixed(2);
-                                    print('Similarity: $similarity'); // Debug line
+                              if (split != null && split.matchedFaces.isNotEmpty) {
+                                final matchedFace = split.matchedFaces[0];
+                                if (matchedFace != null && matchedFace.similarity != null) {
+                                  similarity = (matchedFace.similarity! * 100).toStringAsFixed(2);
+                                  print('Similarity: $similarity'); // Debug line
 
-                                    if (double.parse(similarity) > 90.00) {
-                                      faceMatched = true;
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) => UserAuthenticatedPage(Firstname: user.firstName),
+                                  if (double.parse(similarity) > 90.00) {
+                                    faceMatched = true;
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => UserAuthenticatedPage(
+                                          Firstname: user.firstName,
+                                          lastname: user.lastName,
                                         ),
-                                      );
-                                      break;
-                                    }
+                                      ),
+                                    );
+                                    break;
                                   }
                                 }
                               }
-                            } catch (e) {
-                              print('Error processing user: $e'); // Debug line
                             }
+                          } catch (e) {
+                            print('Error processing user: $e'); // Debug line
                           }
-
-                          setState(() {
-                            isMatching = false;
-                          });
-
-                          if (!faceMatched) {
-                            errorSnackBar(context, 'You are Not the Owner Of this ID card \n If you insist take another Picture and Try again ! ');
-                          }
-                        } else {
-                          errorSnackBar(context, 'Sorry retry');
                         }
-                      }).catchError((error) {
+
                         setState(() {
                           isMatching = false;
                         });
-                        print('Error during authentication: $error'); // Debug line
-                        errorSnackBar(context, 'Error during authentication. Please try again.');
+
+                        if (!faceMatched) {
+                          errorSnackBar(context, 'You are Not the Owner Of this ID card \n If you insist take another Picture and Try again ! ');
+                        }
+                      } else {
+                        errorSnackBar(context, 'Sorry retry');
+                      }
+                    }).catchError((error) {
+                      setState(() {
+                        isMatching = false;
                       });
-                    },
-                    child: Text('Authenticate'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.primary,
-                      backgroundColor: Theme.of(context).colorScheme.background,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        side: BorderSide(
-                          color: Theme.of(context).colorScheme.secondary,
-                          width: 2.0,
-                        ), // Border color and width
+                      print('Error during authentication: $error'); // Debug line
+                      errorSnackBar(context, 'Error during authentication. Please try again.');
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(40.0),
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 300),
+                      height: 70,
+                      width: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(50),
+                        boxShadow: isMatching
+                            ? [
+                          BoxShadow(
+                            color: Colors.blueAccent.withOpacity(0.5),
+                            spreadRadius: 20,
+                            blurRadius: 30,
+                          )
+                        ]
+                            : [],
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 1,
+                        ),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 12.0),
+                      child: Center(
+                        child: Text(
+                          'Authenticate',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

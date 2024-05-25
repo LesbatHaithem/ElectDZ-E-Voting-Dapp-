@@ -3,30 +3,59 @@ import 'package:mrtdeg/Back%20End/splash.dart';
 
 import '../constants/colors.dart';
 
-
-class UserAuthenticatedPage extends StatelessWidget {
+class UserAuthenticatedPage extends StatefulWidget {
   final String Firstname;
+  final String lastname;
 
   const UserAuthenticatedPage({
     required this.Firstname,
+    required this.lastname,
     super.key,
   });
+
+  @override
+  _UserAuthenticatedPageState createState() => _UserAuthenticatedPageState();
+}
+
+class _UserAuthenticatedPageState extends State<UserAuthenticatedPage> {
+  bool _isPressed = false;
+
+  void _handlePress() {
+    setState(() {
+      _isPressed = true;
+    });
+
+    Future.delayed(Duration(milliseconds: 300), () {
+      setState(() {
+        _isPressed = false;
+      });
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SplashScreen(),
+        ),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
-
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.0),
         child: ClipRRect(
           child: AppBar(
             backgroundColor: Theme.of(context).colorScheme.background,
-            title: Text('ElectDz', style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            )),
+            title: Text(
+              'ElectDz',
+              style: TextStyle(
+                color:Colors.black,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             elevation: 0,
             centerTitle: true,
           ),
@@ -43,7 +72,7 @@ class UserAuthenticatedPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Colors.black,
               ),
             ),
             Container(
@@ -65,57 +94,58 @@ class UserAuthenticatedPage extends StatelessWidget {
               ),
             ),
             Text(
-                  'hey ${Firstname} !',
+              'Hey ${widget.Firstname} ${widget.lastname}!',
               textAlign: TextAlign.center,
-              style:  TextStyle(
-
-                color: Theme.of(context).colorScheme.primary,
+              style: TextStyle(
+                color: Colors.black,
                 fontSize: 30,
               ),
             ),
             Text(
-              'You have been successfully Authenticated !',
+              'You have been successfully Authenticated!',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
+                color: Colors.black,
                 fontWeight: FontWeight.w400,
                 fontSize: 18,
               ),
             ),
             const SizedBox(height: 20),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                width: 300,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return SplashScreen();
-                        },
-                      ),
-                    );
-                  },
-                  child: Text('continue'),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.primary,
-                    backgroundColor: Theme.of(context).colorScheme.background,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                        width: 2.0,
-                      ), // Border color and width
+            GestureDetector(
+              onTap: _handlePress,
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                height: 70,
+                width: 200,
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(50),
+                  boxShadow: _isPressed
+                      ? [
+                    BoxShadow(
+                      color: Colors.blueAccent.withOpacity(0.5),
+                      spreadRadius: 20,
+                      blurRadius: 30,
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 12.0),
+                  ]
+                      : [],
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 1,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    'Continue',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                   ),
                 ),
               ),
             ),
-
           ],
         ),
       ),
