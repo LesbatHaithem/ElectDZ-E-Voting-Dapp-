@@ -88,7 +88,7 @@ class _NfcAppState extends State<NfcApp> {
         child: AppBar(
           backgroundColor: Colors.transparent, // Make the app bar transparent
           title: Text(
-            'ElectDZ',
+            'ElectDz',
             style: TextStyle(
               color: Colors.black,
               fontSize: 24,

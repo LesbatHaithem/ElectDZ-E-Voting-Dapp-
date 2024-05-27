@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'dart:typed_data';
 import 'home_page.dart';
 import 'package:mrtdeg/UI/Container.dart';
-import 'package:mrtdeg/Back%20End/splash.dart';
 import 'dart:ui';
 import 'dart:convert';
 import 'package:mrtdeg/firebase/authenticate_user/authenticate_user_page.dart';

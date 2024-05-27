@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -8,6 +9,7 @@ import 'package:mrtdeg/Back%20End/winner.dart';
 import 'package:mrtdeg/Back%20End/Confirm.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 class FlowScreen extends StatefulWidget {
   @override
@@ -20,13 +22,15 @@ class _FlowScreenState extends State<FlowScreen> {
   final PageController _pageController = PageController();
   final GlobalKey _overlayKey = GlobalKey();
 
-  String quorumText = "Loading Quorum...";
-  double quorumCircle = 0.0;
+  double timeRemainingCircle = 0.0;
+  String timeRemainingText = "Loading...";
+  BigInt? totalDuration;
   int step = 0;
   bool showOverlay = false;
   bool _isPressedVote = false;
   bool _isPressedConfirm = false;
   bool _isPressedDeclare = false;
+  Timer? _timer;
 
   final List<List<String>> imageUrlsPerStep = [
     [
@@ -45,14 +49,20 @@ class _FlowScreenState extends State<FlowScreen> {
       'https://white-high-quokka-246.mypinata.cloud/ipfs/QmQJ2uhGpz5zo1iVHzRXG9qFhzsYGAaRLZ4WmcFNKVf5ps',
       'https://white-high-quokka-246.mypinata.cloud/ipfs/QmUysMzk5VA4brrwuTGic71VG9FvRPDofdGwnFnf71S2p6',
     ],
-    // Add more lists of image URLs for other steps if needed
   ];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initialUpdateQuorum());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadDeadline());
     _checkFirstVisit();
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<void> _checkFirstVisit() async {
@@ -66,121 +76,127 @@ class _FlowScreenState extends State<FlowScreen> {
     }
   }
 
-  Future<void> _mayorOrSayonara() async {
-    _showAlert("Asking the winner...");
-    await Future.delayed(Duration(milliseconds: 500));
-
+  Future<void> _loadDeadline() async {
     try {
-      await blockchain.query("mayor_or_sayonara", []);
-      _navigateToWinnerPage();
-    } catch (error) {
-      Navigator.of(context).pop();
-      if (error.toString().contains("has already been")) {
-        _navigateToWinnerPage();
-      } else {
-        //_showErrorAlert(blockchain.translateError(error));
-      }
-    }
-  }
+      final result = await blockchain.queryView("get_deadline", []);
+      if (result.isNotEmpty) {
+        final deadline = BigInt.parse(result[0].toString());
+        final currentTime = BigInt.from(DateTime.now().millisecondsSinceEpoch ~/ 1000);
+        if (totalDuration == null) {
+          totalDuration = deadline - currentTime;
+        }
+        final timeRemaining = deadline - currentTime;
 
-  Future<void> _initialUpdateQuorum() async {
-    _showAlert("Getting election status...");
-    await Future.delayed(Duration(milliseconds: 500));
+        if (!mounted) return;
 
-    try {
-      final value = await blockchain.queryView("get_status", [await blockchain.myAddr()]);
-      Navigator.of(context).pop();
-      setState(() {
-        quorumText = value[0] != value[1]
-            ? "${value[0] - value[1]} votes to quorum (${value[1]}/${value[0]})"
-            : "Quorum reached! (Total voters: ${value[0]})";
-        quorumCircle = value[1] / value[0];
-        step = _determineStep(value);
-      });
-    } catch (error) {
-      Navigator.of(context).pop();
-      //_showErrorAlert(blockchain.translateError(error));
-    }
-  }
-
-  Future<void> _updateQuorum() async {
-    _showAlert("Getting election status...");
-    await Future.delayed(Duration(milliseconds: 500));
-
-    try {
-      final value = await blockchain.queryView("get_status", [await blockchain.myAddr()]);
-      Navigator.of(context).pop();
-      if (!value[3]) {
-        _navigateToWinnerPage();
-      } else {
         setState(() {
-          quorumText = value[0] != value[1]
-              ? "${value[0] - value[1]} votes to quorum (${value[1]}/${value[0]})"
-              : "Quorum reached! (Total voters: ${value[0]})";
-          quorumCircle = value[1] / value[0];
-          step = _determineStep(value);
+          if (timeRemaining > BigInt.zero) {
+            final hours = (timeRemaining ~/ BigInt.from(3600)).toInt();
+            final minutes = ((timeRemaining % BigInt.from(3600)) ~/ BigInt.from(60)).toInt();
+            final seconds = (timeRemaining % BigInt.from(60)).toInt();
+
+            timeRemainingText = "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')} remaining";
+            timeRemainingCircle = timeRemaining.toDouble() / totalDuration!.toDouble();
+          } else {
+            timeRemainingText = "Voting period has ended";
+            timeRemainingCircle = 0.0;
+          }
+        });
+      } else {
+        if (!mounted) return;
+
+        setState(() {
+          timeRemainingText = "Failed to get status";
+          timeRemainingCircle = 0.0;
         });
       }
     } catch (error) {
+      if (!mounted) return;
+
+      setState(() {
+        timeRemainingText = "Failed to get status";
+        timeRemainingCircle = 0.0;
+      });
+    }
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+      await _loadDeadline();
+    });
+  }
+
+  Future<void> _validCandidateCheck() async {
+    _showLoadingDialog("Checking the winner...", "Please wait while we fetch the vote results.");
+
+    try {
+      final deadlineResult = await blockchain.queryView("get_deadline", []);
+
+      if (deadlineResult.isEmpty) {
+        throw Exception("No deadline found.");
+      }
+
+      final deadline = BigInt.parse(deadlineResult[0].toString());
+      final currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+      if (currentTime > deadline.toInt()) {
+        await blockchain.query("valid_candidate_check", []);
+      } else {
+        throw Exception("Voting period has not ended yet.");
+      }
+
       Navigator.of(context).pop();
-      //_showErrorAlert(blockchain.translateError(error));
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Winner()),
+      );
+    } catch (error) {
+      Navigator.of(context).pop();
+
+      if (error.toString().contains("has already been")) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Winner()),
+        );
+        return;
+      }
+
+      _showErrorDialog(error.toString());
     }
   }
 
-  int _determineStep(List<dynamic> value) {
-    if (value[4]) { // addr is a candidate
-      return !value[3] ? 4 : 3; // elections closed
-    } else if (!value[3]) { // elections open
-      return 2;
-    } else if (value[1] == value[0]) { // quorum reached
-      return value[2] ? 1 : 2; // envelope not open
-    } else { // start
-      return 0;
-    }
-  }
-
-  void _showAlert(String title) {
-    Alert(
+  void _showLoadingDialog(String title, String description) {
+    AwesomeDialog(
       context: context,
+      customHeader: CircularProgressIndicator(),
+      dialogType: DialogType.info,
+      headerAnimationLoop: false,
+      animType: AnimType.topSlide,
       title: title,
-      buttons: [],
-      style: AlertStyle(
-        animationType: AnimationType.fromTop,
-        isCloseButton: false,
-        isOverlayTapDismiss: false,
-        descStyle: TextStyle(fontWeight: FontWeight.bold),
-        animationDuration: Duration(milliseconds: 400),
-        alertBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(40.0),
-          side: BorderSide(color: Colors.white, width: 2),
-        ),
-        titleStyle: TextStyle(color: Colors.black),
-      ),
+      desc: description,
+      dismissOnTouchOutside: false,
+      dismissOnBackKeyPress: false,
+      showCloseIcon: false,
     ).show();
   }
 
-  void _showErrorAlert(String error) {
-    Alert(
+  void _showErrorDialog(String message) {
+    AwesomeDialog(
       context: context,
-      type: AlertType.error,
+      dialogType: DialogType.error,
+      headerAnimationLoop: false,
+      animType: AnimType.topSlide,
       title: "Error",
-      desc: error,
-      style: animation,
+      desc: message,
+      btnOkOnPress: () {},
+      btnOkColor: Theme.of(context).colorScheme.secondary,
     ).show();
-  }
-
-  void _navigateToWinnerPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Winner()),
-    );
   }
 
   List<Widget> _buildSteps() {
     if (step == -1) {
       return [Center(child: Text("Loading..."))];
     } else if (step > 2) {
-      // Steps for mayor to deposit funds and declare winner
       return [
         _buildStep(
           title: 'Deposit some funds',
@@ -203,7 +219,7 @@ class _FlowScreenState extends State<FlowScreen> {
                     setState(() {
                       _isPressedDeclare = false;
                     });
-                    if (step == 4) _mayorOrSayonara();
+                    if (step == 4) _validCandidateCheck();
                   });
                 },
                 child: AnimatedContainer(
@@ -229,7 +245,7 @@ class _FlowScreenState extends State<FlowScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      "Ask to declare",
+                      "See Results ",
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -245,7 +261,6 @@ class _FlowScreenState extends State<FlowScreen> {
         ),
       ];
     } else {
-      // General steps for voting process
       return [
         _buildStep(
           title: 'Cast your vote',
@@ -313,7 +328,7 @@ class _FlowScreenState extends State<FlowScreen> {
         ),
         _buildStep(
           title: 'Confirm your vote',
-          description: 'When the quorum is reached you can confirm your vote',
+          description: 'When the voting period ends, you can confirm your vote',
           actions: [
             Center(
               child: GestureDetector(
@@ -390,7 +405,7 @@ class _FlowScreenState extends State<FlowScreen> {
                     setState(() {
                       _isPressedDeclare = false;
                     });
-                    if (step == 2) _mayorOrSayonara();
+                    if (step == 2) _validCandidateCheck();
                   });
                 },
                 child: Padding(
@@ -418,7 +433,7 @@ class _FlowScreenState extends State<FlowScreen> {
                     ),
                     child: Center(
                       child: Text(
-                        "Ask to declare",
+                        "See Results",
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -556,7 +571,7 @@ class _FlowScreenState extends State<FlowScreen> {
     );
   }
 
-  Widget _buildQuorumCard() {
+  Widget _buildTimerCard() {
     return Card(
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
@@ -568,17 +583,33 @@ class _FlowScreenState extends State<FlowScreen> {
           gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Colors.white, Colors.blue]),
         ),
         child: ListTile(
-          leading: CircularProgressIndicator(color: Colors.green, value: quorumCircle),
+          leading: Stack(
+            alignment: Alignment.center,
+            children: [
+              CircularProgressIndicator(
+                color: Colors.green,
+                value: timeRemainingCircle,
+                strokeWidth: 5.0,
+              ),
+              Text(
+                "${(timeRemainingCircle * 100).toStringAsFixed(0)}%",
+                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
           trailing: ElevatedButton(
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
               backgroundColor: Colors.blue,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0), side: BorderSide(color: Colors.blue, width: 1.0)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+                side: BorderSide(color: Colors.blue, width: 1.0),
+              ),
             ),
-            onPressed: () => _updateQuorum(),
+            onPressed: () => _loadDeadline(),
             child: Text("Update"),
           ),
-          title: Text(quorumText),
+          title: Text(timeRemainingText),
         ),
       ),
     );
@@ -641,7 +672,7 @@ class _FlowScreenState extends State<FlowScreen> {
           Column(
             children: [
               SizedBox(height: 80), // Add padding to avoid content being obscured by the app bar
-              _buildQuorumCard(),
+              _buildTimerCard(),
               Expanded(
                 child: PageView(
                   controller: _pageController,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:logging/logging.dart';
+import 'package:mrtdeg/Back%20End/splash.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -30,7 +31,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Elect-DZ',
+      title: 'ElectDz',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.white,
@@ -40,7 +41,7 @@ class MainApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           titleTextStyle: TextStyle(
             color: Colors.black,
-            fontSize: 21,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
             fontStyle: FontStyle.italic,
@@ -59,7 +60,7 @@ class MainApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const WelcomePage(),
+      home: SplashScreen(),
     );
   }
 }
@@ -166,7 +167,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                   child: SlideTransition(
                     position: _positionAnimation!,
                     child: Text(
-                      "Welcome to Elect-DZ E-Voting dApp",
+                      "Welcome to ElectDz E-Voting dApp",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color:Colors.black,

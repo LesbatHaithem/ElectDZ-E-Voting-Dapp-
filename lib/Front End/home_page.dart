@@ -617,10 +617,10 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
       elevation: 0, // Remove the app bar shadow
       centerTitle: true,
       title: Text(
-        'NFC-SCAN',
+        'ID (NFC-SCAN)',
         style: TextStyle(
           color: Colors.black,
-          fontSize: 21,
+          fontSize: 24,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.5,
           fontStyle: FontStyle.italic,
@@ -806,7 +806,7 @@ class _MrtdHomePageState extends State<MrtdHomePage> {
                       ),
                     ),
                   Padding(
-                    padding: const EdgeInsets.all(100.0),
+                    padding: const EdgeInsets.all(90.0),
                     child: const SizedBox(height:110),
                   ),
                   Text(

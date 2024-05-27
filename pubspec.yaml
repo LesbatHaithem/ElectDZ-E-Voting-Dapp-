@@ -72,6 +72,9 @@ dependencies:
   uuid: ^3.0.7
   google_mlkit_face_detection: ^0.5.0
   audioplayers: ^6.0.0
+  fl_chart: ^0.68.0
+  awesome_dialog: ^3.2.1
+
 
 
 

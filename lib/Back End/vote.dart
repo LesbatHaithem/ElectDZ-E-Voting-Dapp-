@@ -1,13 +1,15 @@
+import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:mrtdeg/Back%20End/blockchain.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:web3dart/web3dart.dart';
+import 'package:mrtdeg/Back%20End/blockchain.dart';
+import 'package:mrtdeg/Back%20End/winner.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import '../UI/Gradientbutton.dart';
-import 'winner.dart';
-import 'dart:ui'; // Import for the blur effect
+import 'package:mrtdeg/UI/Gradientbutton.dart';
 
 class Vote extends StatefulWidget {
   final bool isConfirming;
@@ -21,12 +23,13 @@ class Vote extends StatefulWidget {
 class _VoteState extends State<Vote> {
   final _formKey = GlobalKey<FormState>();
   final textSecretController = TextEditingController();
-  AlertStyle animation = AlertStyle(animationType: AnimationType.grow);
   bool _obscureText = true;
 
-  String quorumText = "Loading Quorum...";
-  double quorumCircle = 0.0;
+  double timeRemainingCircle = 0.0;
+  String timeRemainingText = "00:00:00";
   int step = -1;
+  bool _isVotingPeriodEnded = false;
+  String _submitVoteButtonText = 'Submit Vote';
 
   Blockchain blockchain = Blockchain();
   List<dynamic> candidates = [];
@@ -40,50 +43,114 @@ class _VoteState extends State<Vote> {
 
   int _selectedGroup = -1;
 
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateGroupsAndCandidates());
+    _loadDeadline();
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    textSecretController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadDeadline() async {
+    final result = await blockchain.queryView("get_deadline", []);
+    if (result.isNotEmpty) {
+      final deadline = result[0] as BigInt;
+      final currentTime = BigInt.from(DateTime.now().millisecondsSinceEpoch ~/ 1000);
+      final timeRemaining = deadline - currentTime;
+
+      if (!mounted) return;
+
+      setState(() {
+        if (timeRemaining > BigInt.zero) {
+          final hours = (timeRemaining / BigInt.from(3600)).toInt();
+          final minutes = ((timeRemaining % BigInt.from(3600)) / BigInt.from(60)).toInt();
+          final seconds = (timeRemaining % BigInt.from(60)).toInt();
+
+          timeRemainingText = "$hours:$minutes:$seconds";
+          timeRemainingCircle = timeRemaining.toDouble() / deadline.toDouble();
+          _isVotingPeriodEnded = false;
+        } else {
+          timeRemainingText = "Voting period has ended";
+          timeRemainingCircle = 1.0;
+          _isVotingPeriodEnded = true;
+          _submitVoteButtonText = 'Submit Vote';
+        }
+      });
+    } else {
+      if (!mounted) return;
+
+      setState(() {
+        timeRemainingText = "Failed to get status";
+        timeRemainingCircle = 0.0;
+      });
+    }
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+      final currentTime = BigInt.from(DateTime.now().millisecondsSinceEpoch ~/ 1000);
+      final result = await blockchain.queryView("get_deadline", []);
+      if (result.isNotEmpty) {
+        final deadline = result[0] as BigInt;
+        final timeRemaining = deadline - currentTime;
+
+        if (!mounted) return;
+
+        setState(() {
+          if (timeRemaining > BigInt.zero) {
+            final hours = (timeRemaining / BigInt.from(3600)).toInt();
+            final minutes = ((timeRemaining % BigInt.from(3600)) / BigInt.from(60)).toInt();
+            final seconds = (timeRemaining % BigInt.from(60)).toInt();
+
+            timeRemainingText = "$hours:$minutes:$seconds";
+            timeRemainingCircle = timeRemaining.toDouble() / deadline.toDouble();
+            _isVotingPeriodEnded = false;
+          } else {
+            timeRemainingText = "Voting period has ended";
+            timeRemainingCircle = 1.0;
+            _isVotingPeriodEnded = true;
+            _timer?.cancel();
+          }
+        });
+      }
+    });
   }
 
   Future<void> _updateGroupsAndCandidates() async {
-    Alert(
+    AwesomeDialog(
       context: context,
+      customHeader: CircularProgressIndicator(),
+      dialogType: DialogType.info,
+      headerAnimationLoop: false,
+      animType: AnimType.topSlide,
       title: "Getting groups and candidates...",
       desc: "Please wait while we fetch the group and candidate details.",
-      buttons: [],
-      style: AlertStyle(
-        animationType: AnimationType.grow,
-        isCloseButton: false,
-        isOverlayTapDismiss: false,
-        overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
-        alertBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          side: BorderSide(
-            color: Theme.of(context).colorScheme.secondary,
-            width: 1,
-          ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(height: 16),
+            Text("Please wait while we fetch the group and candidate details.", textAlign: TextAlign.center),
+          ],
         ),
-        backgroundColor: Theme.of(context).colorScheme.background,
-        titleStyle: TextStyle(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-        descStyle: TextStyle(
-          fontSize: 16,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        animationDuration: Duration(milliseconds: 500),
-        alertElevation: 0,
-        buttonAreaPadding: EdgeInsets.all(20),
-        alertPadding: EdgeInsets.all(20),
       ),
     ).show();
 
     Future.delayed(const Duration(milliseconds: 500), () async {
       try {
-        final groupDetails = await blockchain.queryView("getAllDetails", []);
+        final groupDetails = await blockchain.queryView("getGroupDetails", []);
+        final candidateDetails = await blockchain.queryView("getCandidateDetails", []);
         Navigator.of(context).pop();
         setState(() {
           groupNames = groupDetails[0];
@@ -96,18 +163,26 @@ class _VoteState extends State<Vote> {
               'candidates': groupDetails[2][index]
             };
           });
-          candidates = groupDetails[3];
-          firstNames = groupDetails[4];
-          lastNames = groupDetails[5];
-          imageUrls = groupDetails[6];
+          candidates = candidateDetails[0];
+          firstNames = candidateDetails[1];
+          lastNames = candidateDetails[2];
+          imageUrls = candidateDetails[3];
         });
       } catch (error) {
         Navigator.of(context).pop();
-        Alert(
+        AwesomeDialog(
           context: context,
-          type: AlertType.error,
+          customHeader: Icon(
+            Icons.error,
+            size: 50,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          dialogType: DialogType.error,
+          headerAnimationLoop: false,
+          animType: AnimType.topSlide,
           title: "Error",
           desc: error.toString(),
+          btnOkOnPress: () {},
         ).show();
       }
     });
@@ -115,243 +190,85 @@ class _VoteState extends State<Vote> {
 
   bool checkSelection() {
     if (_selectedGroup == -1) {
-      Alert(
+      AwesomeDialog(
         context: context,
-        type: AlertType.error,
-        title: "Error",
-        desc: (widget.isConfirming)
-            ? "Please select the group you voted for"
-            : "Please select the group you want to vote for",
-        style: AlertStyle(
-          animationType: AnimationType.grow,
-          isCloseButton: false,
-          isOverlayTapDismiss: false,
-          overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
-          alertBorder: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
-            side: BorderSide(
-              color: Theme.of(context).colorScheme.secondary,
-              width: 1,
-            ),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.background,
-          titleStyle: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-          descStyle: TextStyle(
-            fontSize: 16,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          animationDuration: const Duration(milliseconds: 500),
-          alertElevation: 0,
+        customHeader: Icon(
+          Icons.warning,
+          size: 70,
+          color: Theme.of(context).colorScheme.primary,
         ),
+        dialogType: DialogType.error,
+        headerAnimationLoop: false,
+        animType: AnimType.topSlide,
+        title: "Error",
+        desc: (widget.isConfirming) ? "Please select the group you voted for" : "Please select the group you want to vote for",
+        btnOkOnPress: () {},
       ).show();
       return false;
     }
     return true;
   }
 
-  Future<void> _updateQuorum() async {
-    Alert(
-      context: context,
-      title: "Getting election status...",
-      buttons: [],
-      style: AlertStyle(
-        animationType: AnimationType.fromTop,
-        isCloseButton: false,
-        isOverlayTapDismiss: false,
-        descStyle: TextStyle(fontWeight: FontWeight.bold),
-        animationDuration: Duration(milliseconds: 400),
-        alertBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(40.0),
-          side: BorderSide(color: Colors.white, width: 2),
-        ),
-        titleStyle: TextStyle(color: Colors.black),
-      ),
-    ).show();
-    Future.delayed(Duration(milliseconds: 500), () async => {
-      blockchain.queryView("get_status", [await blockchain.myAddr()]).then((value) => {
-        Navigator.of(context).pop(),
-        if (value[3] == false){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Winner()),
-          )
-        },
-        setState(() {
-          quorumText = (value[0] != value[1])
-              ? "${value[0] - value[1]} votes to quorum (${value[1]}/${value[0]})"
-              : "Quorum reached! (Total voters: ${value[0]})";
-          quorumCircle = value[1] / value[0];
-          print(value);
-          if (value[1] == value[0]) {
-            if (value[2]) { // envelope not open
-              step = 1;
-            } else { // envelope opened
-              step = 2;
-            }
-          } else { // start or quorum not reached
-            step = 0;
-          }
-        })
-      }).catchError((error) {
-        Navigator.of(context).pop();
-        Alert(
-            context: context,
-            type: AlertType.error,
-            title: "Error",
-            desc: error.toString(),
-            style: animation
-        ).show();
-      })
-    });
-  }
-
   Future<void> _sendVote() async {
     if (!checkSelection()) return;
     if (textSecretController.text.isEmpty) {
-      Alert(
+      AwesomeDialog(
         context: context,
-        type: AlertType.error,
+        dialogType: DialogType.error,
+        headerAnimationLoop: false,
+        animType: AnimType.topSlide,
         title: "Error",
         desc: "Please enter a secret code.",
-        style: AlertStyle(
-          animationType: AnimationType.grow,
-          isCloseButton: false,
-          isOverlayTapDismiss: false,
-          overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
-          alertBorder: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
-            side: BorderSide(
-              color: Theme.of(context).colorScheme.secondary,
-              width: 1,
-            ),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.background,
-          titleStyle: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-          descStyle: TextStyle(
-            fontSize: 16,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          animationDuration: const Duration(milliseconds: 500),
-          alertElevation: 0,
-        ),
+        btnOkOnPress: () {},
       ).show();
       return;
     }
 
     List<dynamic> args = [
-      blockchain.encodeVote(BigInt.parse(textSecretController.text), groupAddresses[_selectedGroup]) // Use group address
+      blockchain.encodeVote(BigInt.parse(textSecretController.text), groupAddresses[_selectedGroup])
     ];
 
-    Alert(
+    AwesomeDialog(
       context: context,
+      dialogType: DialogType.noHeader,
+      headerAnimationLoop: false,
+      animType: AnimType.topSlide,
       title: "Sending your vote...",
-      buttons: [],
-      style: AlertStyle(
-        animationType: AnimationType.grow,
-        isCloseButton: false,
-        isOverlayTapDismiss: false,
-        overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
-        alertBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          side: BorderSide(
-            color: Theme.of(context).colorScheme.secondary,
-            width: 1,
-          ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.background,
-        titleStyle: TextStyle(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-        descStyle: TextStyle(
-          fontSize: 16,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        animationDuration: const Duration(milliseconds: 500),
-        alertElevation: 0,
-        buttonAreaPadding: const EdgeInsets.all(20),
-        alertPadding: const EdgeInsets.all(20),
-      ),
+      desc: "",
     ).show();
+
     Future.delayed(const Duration(milliseconds: 500), () {
       blockchain.query("cast_envelope", args).then((value) {
         Navigator.of(context).pop();
-        Alert(
-          style: AlertStyle(
-            animationType: AnimationType.grow,
-            isCloseButton: false,
-            isOverlayTapDismiss: false,
-            overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
-            alertBorder: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30.0),
-              side: BorderSide(
-                color: Theme.of(context).colorScheme.secondary,
-                width: 1,
-              ),
-            ),
-            backgroundColor: Theme.of(context).colorScheme.background,
-            titleStyle: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
-            descStyle: TextStyle(
-              fontSize: 16,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            animationDuration: const Duration(milliseconds: 500),
-            alertElevation: 0,
-            buttonAreaPadding: const EdgeInsets.all(20),
-            alertPadding: const EdgeInsets.all(20),
-          ),
+        AwesomeDialog(
           context: context,
-          type: AlertType.success,
-          title: "OK",
+          customHeader: Icon(
+            Icons.check_circle,
+            size: 50,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+          dialogType: DialogType.success,
+          headerAnimationLoop: false,
+          animType: AnimType.topSlide,
+          title: "Success",
           desc: "Your vote has been cast!",
+          btnOkOnPress: () {},
         ).show();
       }).catchError((error) {
         Navigator.of(context).pop();
-        Alert(
-          style: AlertStyle(
-            animationType: AnimationType.grow,
-            isCloseButton: false,
-            isOverlayTapDismiss: false,
-            overlayColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
-            alertBorder: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30.0),
-              side: BorderSide(
-                color: Theme.of(context).colorScheme.secondary,
-                width: 1,
-              ),
-            ),
-            backgroundColor: Theme.of(context).colorScheme.background,
-            titleStyle: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
-            descStyle: TextStyle(
-              fontSize: 16,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            animationDuration: const Duration(milliseconds: 500),
-            alertElevation: 0,
-            buttonAreaPadding: const EdgeInsets.all(20),
-            alertPadding: const EdgeInsets.all(20),
-          ),
+        AwesomeDialog(
           context: context,
-          type: AlertType.error,
+          customHeader: Icon(
+            Icons.error,
+            size: 50,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          dialogType: DialogType.error,
+          headerAnimationLoop: false,
+          animType: AnimType.topSlide,
           title: "Error",
-          desc: error.toString(), // blockchain.translateError(error)
+          desc: error.toString(),
+          btnOkOnPress: () {},
         ).show();
       });
     });
@@ -372,7 +289,7 @@ class _VoteState extends State<Vote> {
           child: ClipRRect(
             borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
             child: AppBar(
-              backgroundColor: Colors.transparent, // Make the app bar transparent
+              backgroundColor: Colors.transparent,
               title: Text('Vote', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
               elevation: 0,
               centerTitle: true,
@@ -384,9 +301,9 @@ class _VoteState extends State<Vote> {
         children: [
           Positioned.fill(
             child: Opacity(
-              opacity: 0.3, // Adjust the opacity for fading effect
+              opacity: 0.3,
               child: Image.asset(
-                'assets/background.png', // Your background image asset
+                'assets/background.png',
                 fit: BoxFit.cover,
               ),
             ),
@@ -408,6 +325,29 @@ class _VoteState extends State<Vote> {
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 20),
+                          CarouselSlider(
+                            options: CarouselOptions(
+                              autoPlay: true,
+                              autoPlayInterval: Duration(seconds: 3),
+                              height: 60,
+                              viewportFraction: 1.0,
+                            ),
+                            items: [
+                              Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '$timeRemainingText',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
                           StaggeredGrid.count(
                             crossAxisCount: 1,
                             mainAxisSpacing: 4.0,
@@ -415,7 +355,7 @@ class _VoteState extends State<Vote> {
                             children: List.generate(groups.length, (int groupIndex) {
                               var group = groups[groupIndex];
                               var validCandidates = group['candidates'].where((candidate) => candidates.contains(candidate)).toList();
-                              validCandidates.remove(groupAddresses[groupIndex]); // Remove the group address
+                              validCandidates.remove(groupAddresses[groupIndex]);
                               return GestureDetector(
                                 onTap: () {
                                   setState(() {
@@ -537,15 +477,15 @@ class _VoteState extends State<Vote> {
                             decoration: InputDecoration(
                               labelText: 'Create Secret code',
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20), // Rounded corners
+                                borderRadius: BorderRadius.circular(20),
                                 borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20), // Rounded corners
+                                borderRadius: BorderRadius.circular(20),
                                 borderSide: BorderSide(color: Colors.black),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20), // Rounded corners
+                                borderRadius: BorderRadius.circular(20),
                                 borderSide: BorderSide(color: Colors.blue, width: 2.0),
                               ),
                               contentPadding: EdgeInsets.all(16.0),
@@ -580,9 +520,7 @@ class _VoteState extends State<Vote> {
                                     width: 200,
                                     child: GradientButton(
                                       text: "Cast Vote",
-                                      onPressed: () {
-                                        _sendVote();
-                                      },
+                                      onPressed: _isVotingPeriodEnded ? null : () => _sendVote(),
                                       width: 200,
                                       height: 50,
                                     ),
@@ -590,59 +528,6 @@ class _VoteState extends State<Vote> {
                                 ),
                               ),
                             ],
-                          ),
-                          const SizedBox(height: 20),
-                          Center(
-                            child: Container(
-                              child: Card(
-                                elevation: 5,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: Container(
-                                  width: 405,
-                                  height: 115,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        Colors.white,
-                                        Colors.blue,
-                                      ],
-                                    ),
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      ListTile(
-                                        leading: CircularProgressIndicator(
-                                          color: Colors.green,
-                                          value: quorumCircle,
-                                        ),
-                                        trailing: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            foregroundColor: Colors.white,
-                                            backgroundColor: Colors.blue,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              side: BorderSide(
-                                                color: Colors.blue,
-                                                width: 1.0,
-                                              ),
-                                            ),
-                                          ),
-                                          onPressed: _updateQuorum,
-                                          child: Text("Update"),
-                                        ),
-                                        title: Text('$quorumText'),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
                           ),
                         ],
                       ),
