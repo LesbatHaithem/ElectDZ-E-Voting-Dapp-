@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const Deputies = artifacts.require("Deputies");
+const Elections = artifacts.require("Elections");
 
 module.exports = function(deployer) {
-  const filePath = path.join(__dirname, 'deputies_candidates.json');
+  const filePath = path.join(__dirname, 'groups_candidates.json');
   const rawData = fs.readFileSync(filePath);
   const data = JSON.parse(rawData);
 
@@ -14,7 +14,7 @@ module.exports = function(deployer) {
   const duration = data.duration;
   const candidates = data.candidates;
 
-  deployer.deploy(Deputies, escrow, duration, groupNames, groupPictures, groupAddresses).then(async (instance) => {
+  deployer.deploy(Elections, escrow, duration, groupNames, groupPictures, groupAddresses).then(async (instance) => {
     for (let i = 0; i < candidates.length; i++) {
       const candidate = candidates[i];
       await instance.addCandidateToGroup(

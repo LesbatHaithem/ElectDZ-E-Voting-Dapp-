@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:logging/logging.dart';
-import 'package:mrtdeg/Back%20End/splash.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -60,7 +59,7 @@ class MainApp extends StatelessWidget {
           ),
         ),
       ),
-      home: SplashScreen(),
+      home: const WelcomePage(),
     );
   }
 }

@@ -179,10 +179,10 @@ class _QRScreenState extends State<QRScreen> {
           ),
           Center(
             child: Opacity(
-              opacity: 0.6, // Adjusted opacity
+              opacity: 0.2, // Adjusted opacity
               child: Lottie.asset(
                 'assets/QR_Code.json',
-                width: 500, // Increased size
+                width: 400, // Increased size
                 height: 400, // Increased size
                 fit: BoxFit.cover,
                 animate: true,

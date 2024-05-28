@@ -111,7 +111,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                     SizedBox(height: 5.0),
                     SizedBox(
-                      height: 80.0,
+                      height: 50.0,
                       child: Lottie.asset('assets/splash.json', width: 300),
                     ),
                     SizedBox(height: 1.0),

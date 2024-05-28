@@ -264,7 +264,7 @@ class _FlowScreenState extends State<FlowScreen> {
       return [
         _buildStep(
           title: 'Cast your vote',
-          description: 'Every vote you cast overwrites the previous one',
+          description: 'Tap vote and Select your Preferred Political party , Please Create a Secret Code and Tap Cast Vote',
           actions: [
             Center(
               child: GestureDetector(
@@ -328,7 +328,7 @@ class _FlowScreenState extends State<FlowScreen> {
         ),
         _buildStep(
           title: 'Confirm your vote',
-          description: 'When the voting period ends, you can confirm your vote',
+          description: 'Tap Confirm & Confirm your Previous Vote , Make sure you Enter the same Secret Code you created earlier ',
           actions: [
             Center(
               child: GestureDetector(
@@ -392,7 +392,7 @@ class _FlowScreenState extends State<FlowScreen> {
         ),
         _buildStep(
           title: 'Declare the winner',
-          description: 'Once everyone has confirmed their vote you can ask to declare the winner',
+          description: 'Once The Voting Period Ended you can Tap See Results To See the Statistics and Who Won 👑 ',
           actions: [
             Center(
               child: GestureDetector(

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.1;
 
-contract Deputies {
+contract Elections {
 
     struct Conditions {
         uint256 deadline;
@@ -30,7 +30,7 @@ contract Deputies {
         address[] candidateAddresses;
     }
 
-    event NewMayor(address indexed _group);
+    event Results(address indexed _group);
     event InvalidElections(address indexed _escrow);
     event EnvelopeCast(address indexed _voter);
     event EnvelopeOpen(address indexed _voter, address indexed _group);
@@ -152,7 +152,7 @@ contract Deputies {
             voting_condition.valid_results = false;
             emit InvalidElections(escrow);
         } else {
-            emit NewMayor(electedGroup);
+            emit Results(electedGroup);
         }
     }
 

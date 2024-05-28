@@ -436,21 +436,17 @@ class _WinnerState extends State<Winner> {
                 child: Column(
                   children: <Widget>[
                     Text(
-                      "Invalid Elections",
-                      style: TextStyle(fontSize: 40, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
+                      "Invalid Elections ",
+                      style: TextStyle(fontSize: 40, color: Colors.black, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
                     const Text(
-                      "Elections are invalid!",
+                      "Elections are invalid there was a Tie !",
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 50),
-                    // Center(
-                    //   child: Lottie.asset(
-                    //     'assets/invalid_elect.json',
-                    //     height: 200,
-                    //   ),
-                    // ),
+                    Image.asset("assets/invalid.png", width: MediaQuery.of(context).size.width * 0.8),
+
                     const SizedBox(height: 100),
                     Align(
                       alignment: Alignment.bottomCenter,
@@ -458,11 +454,12 @@ class _WinnerState extends State<Winner> {
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            foregroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.blue,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               side: BorderSide(
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Colors.transparent,
                                 width: 1.0,
                               ), // Border color and width
                             ),

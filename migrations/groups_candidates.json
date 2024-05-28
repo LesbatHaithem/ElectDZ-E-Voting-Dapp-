@@ -23,7 +23,7 @@
 
   ],
   "escrow": "0x9e31CDbC17738fb0471093d44DebB8760f554379",
-  "duration": 500,
+  "duration": 800,
   "candidates": [
     {
       "address": "0xB4b7910E3BDd3b2a3d37AD3a7E16988caF6298d2",

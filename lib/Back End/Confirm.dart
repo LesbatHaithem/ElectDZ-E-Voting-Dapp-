@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
@@ -8,7 +7,6 @@ import 'package:mrtdeg/Back%20End/blockchain.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../UI/Gradientbutton.dart';
-import 'winner.dart';
 import 'dart:ui'; // Import for the blur effect
 
 class Confirm extends StatefulWidget {
@@ -29,6 +27,7 @@ class _ConfirmState extends State<Confirm> {
   String timeRemainingText = "00:00:00";
   bool _isVotingPeriodEnded = false;
   int step = -1;
+  int numberOfVoters = 0; // New state variable for number of voters
 
   Blockchain blockchain = Blockchain();
   List<dynamic> candidates = [];
@@ -43,6 +42,7 @@ class _ConfirmState extends State<Confirm> {
   int _selectedGroup = -1;
 
   Timer? _timer;
+  Timer? _voterCountTimer; // New timer for fetching number of votes
 
   @override
   void initState() {
@@ -50,13 +50,34 @@ class _ConfirmState extends State<Confirm> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateGroupsAndCandidates());
     _loadDeadline();
     _startTimer();
+    _startVoterCountTimer(); // Start the voter count timer
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _voterCountTimer?.cancel(); // Cancel the voter count timer
     textSecretController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchNumberOfVoters() async {
+    try {
+      final result = await blockchain.queryView("get_vote_count", []);
+      if (result.isNotEmpty) {
+        setState(() {
+          numberOfVoters = int.tryParse(result[0].toString()) ?? 0;
+        });
+      }
+    } catch (error) {
+      print("Error fetching number of voters: $error");
+    }
+  }
+
+  void _startVoterCountTimer() {
+    _voterCountTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
+      await _fetchNumberOfVoters();
+    });
   }
 
   Future<void> _loadDeadline() async {
@@ -344,6 +365,18 @@ class _ConfirmState extends State<Confirm> {
                                   ),
                                 ),
                               ),
+                              Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '$numberOfVoters votes cast',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 20),
@@ -511,21 +544,18 @@ class _ConfirmState extends State<Confirm> {
                             ],
                           ),
                           const SizedBox(height: 20),
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: Center(
-                                  child: Container(
-                                    width: 200,
-                                    child: GradientButton(
-                                      text: "Confirm Vote",
-                                      onPressed: _isVotingPeriodEnded ? null : () => _openVote(),
-                                      width: 200,
-                                      height: 50,
-                                    ),
-                                  ),
+                          Column(
+                            children: [
+                              Container(
+                                width: 200,
+                                child: GradientButton(
+                                  text: "Confirm Vote",
+                                  onPressed: _isVotingPeriodEnded ? null : () => _openVote(),
+                                  width: 150,
+                                  height: 50,
                                 ),
                               ),
+                              SizedBox(height: 20), // Add space under the button
                             ],
                           ),
                         ],

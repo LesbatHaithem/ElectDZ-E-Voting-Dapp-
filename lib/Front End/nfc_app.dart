@@ -141,6 +141,7 @@ class _NfcAppState extends State<NfcApp> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
+                    fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onBackground,
                   ),
                 ),
@@ -199,6 +200,7 @@ class _NfcAppState extends State<NfcApp> {
                     _authorized,
                     style: TextStyle(
                       fontSize: 16,
+                      fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onBackground,
                     ),
                   ),

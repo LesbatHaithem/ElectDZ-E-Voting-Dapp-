@@ -7,7 +7,6 @@ import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:mrtdeg/Back%20End/blockchain.dart';
-import 'package:mrtdeg/Back%20End/winner.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:mrtdeg/UI/Gradientbutton.dart';
 
@@ -42,8 +41,10 @@ class _VoteState extends State<Vote> {
   List<dynamic> groupAddresses = [];
 
   int _selectedGroup = -1;
+  int numberOfVoters = 0; // New state variable for number of voters
 
   Timer? _timer;
+  Timer? _voterCountTimer; // New timer for fetching number of votes
 
   @override
   void initState() {
@@ -51,13 +52,34 @@ class _VoteState extends State<Vote> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateGroupsAndCandidates());
     _loadDeadline();
     _startTimer();
+    _startVoterCountTimer(); // Start the voter count timer
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _voterCountTimer?.cancel(); // Cancel the voter count timer
     textSecretController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchNumberOfVoters() async {
+    try {
+      final result = await blockchain.queryView("get_vote_count", []);
+      if (result.isNotEmpty) {
+        setState(() {
+          numberOfVoters = int.tryParse(result[0].toString()) ?? 0;
+        });
+      }
+    } catch (error) {
+      print("Error fetching number of voters: $error");
+    }
+  }
+
+  void _startVoterCountTimer() {
+    _voterCountTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
+      await _fetchNumberOfVoters();
+    });
   }
 
   Future<void> _loadDeadline() async {
@@ -339,7 +361,19 @@ class _VoteState extends State<Vote> {
                                   '$timeRemainingText',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '$numberOfVoters votes cast',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.black,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
@@ -516,14 +550,19 @@ class _VoteState extends State<Vote> {
                             children: <Widget>[
                               Expanded(
                                 child: Center(
-                                  child: Container(
-                                    width: 200,
-                                    child: GradientButton(
-                                      text: "Cast Vote",
-                                      onPressed: _isVotingPeriodEnded ? null : () => _sendVote(),
-                                      width: 200,
-                                      height: 50,
-                                    ),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        width: 200,
+                                        child: GradientButton(
+                                          text: "Cast Vote",
+                                          onPressed: _isVotingPeriodEnded ? null : () => _sendVote(),
+                                          width: 150,
+                                          height: 50,
+                                        ),
+                                      ),
+                                      SizedBox(height: 20), // Add space under the button
+                                    ],
                                   ),
                                 ),
                               ),
